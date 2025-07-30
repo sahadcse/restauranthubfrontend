@@ -1,0 +1,1 @@
+New: All contexts (move from lib/: authContext.tsx, cartContext.tsx, wishlistContext.tsx)

@@ -1,0 +1,57 @@
+restaurant-ecommerce-hub/
+├── backend/                  # Your existing backend
+├── frontend/
+│   ├── next/                 # Next.js root (consider renaming to 'app' for clarity)
+│   │   ├── src/              # New: Wraps all source code for better isolation
+│   │   │   ├── app/          # Routes with multi-tenant support
+│   │   │   │   ├── [tenant]/ # Dynamic: For restaurant-specific routes (e.g., /restaurant-slug/menu)
+│   │   │   │   │   ├── menu/
+│   │   │   │   │   ├── orders/
+│   │   │   │   │   ├── layout.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── (auth)/   # Group: Auth routes (e.g., /login, /register)
+│   │   │   │   │   ├── login/
+│   │   │   │   │   └── register/
+│   │   │   │   ├── (dashboard)/ # Group: Role-based dashboards
+│   │   │   │   │   ├── admin/
+│   │   │   │   │   ├── customer/
+│   │   │   │   │   ├── restaurant/
+│   │   │   │   │   └── layout.tsx
+│   │   │   │   ├── api/      # Server Actions or API routes
+│   │   │   │   │   └── [slug]/ # Dynamic: For restaurant-specific API routes
+│   │   │   │   ├── checkout/
+│   │   │   │   ├── faq/
+│   │   │   │   ├── track-order/
+│   │   │   │   ├── wishlist/
+│   │   │   │   ├── globals.css
+│   │   │   │   ├── layout.tsx
+│   │   │   │   ├── page.tsx  # Homepage (e.g., browse all restaurants)
+│   │   │   │   └── middleware.ts # New: Handles tenant Routes, tenant ID extraction, auth redirects
+│   │   │   ├── components/   # Reusable UI
+│   │   │   │   ├── ui/       # Primitives (e.g., Button.tsx from shadcn/ui)
+│   │   │   │   ├── layout/   # New: Structural (e.g., Header.tsx, Footer.tsx, Breadcrumb.tsx)
+│   │   │   │   └── features/ # New: Domain-specific (e.g., auth/LoginForm.tsx, cart/CartModal.tsx, products/ProductCard.tsx, restaurants/RestaurantCard.tsx)
+│   │   │   ├── contexts/     # New: All contexts (move from lib/: authContext.tsx, cartContext.tsx, wishlistContext.tsx)
+│   │   │   ├── hooks/        # New: Custom hooks (e.g., useAuthCheck.tsx, useCart.tsx)
+│   │   │   ├── lib/          # Utilities and integrations
+│   │   │   │   ├── api/      # New subfolder: api.ts, backend.ts (backend fetches)
+│   │   │   │   ├── auth.ts   # New: Auth utils (e.g., token handling)
+│   │   │   │   └── utils.ts  # General helpers
+│   │   │   ├── models/       # New: TypeScript types (e.g., user.ts, order.ts, restaurant.ts)
+│   │   │   ├── styles/       # New: Theme/variables (e.g., variables.css, themes/dark.css)
+│   │   │   ├── tests/        # New: Unit/E2E tests (e.g., components/ProductCard.test.tsx)
+│   │   │   └── locales/      # Optional: i18n files if multi-language
+│   │   ├── public/           # Static assets (e.g., favicon.ico)
+│   │   ├── .env
+│   │   ├── .gitignore
+│   │   ├── eslint.config.mjs
+│   │   ├── next-env.d.ts
+│   │   ├── next.config.ts
+│   │   ├── package.json
+│   │   ├── postcss.config.mjs
+│   │   ├── README.md
+│   │   ├── tailwind.config.ts
+│   │   ├── tsconfig.json
+│   │   └── vercel.json
+│   └── ...                   # Other frontend files if any
+└── ...                       # Root configs if shared

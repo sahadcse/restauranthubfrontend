@@ -1,0 +1,1 @@
+New: Custom hooks (e.g., useAuthCheck.tsx, useCart.tsx)

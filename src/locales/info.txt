@@ -1,0 +1,1 @@
+# Optional: i18n files if multi-language

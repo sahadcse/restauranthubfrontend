@@ -1,0 +1,1 @@
+[tenant]/ # Dynamic: For restaurant-specific routes (e.g., /restaurant-slug/menu)

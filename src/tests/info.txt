@@ -1,0 +1,1 @@
+# New: Unit/E2E tests (e.g., components/ProductCard.test.tsx)

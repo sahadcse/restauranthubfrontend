@@ -52,7 +52,7 @@ const footerData = {
   companyLinks: [
     { name: "About us", href: "/about" },
     { name: "Delivery", href: "/delivery-info" },
-    { name: "Legal Notice", href: "/legal-notice" },
+    { name: "Legal Notice", href: "/privacy-policy" },
     { name: "Terms & conditions", href: "/terms" },
     { name: "Secure payment", href: "/secure-payment" },
     { name: "Contact us", href: "/contact" },
@@ -60,7 +60,7 @@ const footerData = {
 
   // Account Links
   accountLinks: [
-    { name: "Sign In", href: "/signin" },
+    { name: "Sign In", href: "/login" },
     { name: "View Cart", href: "/cart" },
     { name: "Return Policy", href: "/return-policy" },
     { name: "Become a Vendor", href: "/vendor-signup" },

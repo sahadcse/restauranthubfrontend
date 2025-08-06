@@ -53,7 +53,7 @@ export default function Login() {
   // Breadcrumb items
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Home", href: "/" },
-    { label: "Auth", href: "/auth" },
+    { label: "Auth", href: "#" },
     { label: "Login" },
   ];
 

@@ -123,7 +123,7 @@ export default function Register() {
   // Breadcrumb items
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Home", href: "/" },
-    { label: "User", href: "/auth" },
+    { label: "User", href: "#" },
     { label: "Register" },
   ];
 
@@ -338,7 +338,7 @@ export default function Register() {
                   Want to register your restaurant?
                 </p>
                 <Link
-                  href="/restaurant/register"
+                  href="/vendor-signup"
                   className="w-full block text-center bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                 >
                   Restaurant Owner Registration

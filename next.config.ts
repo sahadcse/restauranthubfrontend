@@ -28,11 +28,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "plus.unsplash.com",
+      },
     ],
   },
   // domains: ["example.com"],
-  allowedDevOrigins: ['http://192.168.1.105:3000', 'http://192.168.1.105:3001'],
+  allowedDevOrigins: ["http://192.168.1.105:3000", "http://192.168.1.105:3001"],
 };
-
 
 export default nextConfig;

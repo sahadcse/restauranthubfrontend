@@ -51,10 +51,10 @@ const footerData = {
   // Company Links
   companyLinks: [
     { name: "About us", href: "/about" },
-    { name: "Delivery", href: "/delivery-info" },
+    { name: "Delivery", href: "/track-order" },
     { name: "Legal Notice", href: "/privacy-policy" },
     { name: "Terms & conditions", href: "/terms" },
-    { name: "Secure payment", href: "/secure-payment" },
+    { name: "Secure payment", href: "/checkout" },
     { name: "Contact us", href: "/contact" },
   ],
 
@@ -72,10 +72,19 @@ const footerData = {
   contact: {
     address: "Mollahpara, Magura Sadar, Magura, Bangladesh",
     phone: "+880 174 666 9174",
-    email: "sahaduzzaman.cse@email.com",
+    email: "sahaduzzaman.cse@gmail.com",
     addressIcon: "address",
     phoneIcon: "phone",
     emailIcon: "email",
+    // Add map configuration
+    map: {
+      latitude: 23.4861,
+      longitude: 89.4197,
+      zoom: 15,
+      embedUrl:
+        "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3077.2074924862577!2d89.427527731388!3d23.480762648952187!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2s!5e0!3m2!1sen!2sbd!4v1754483306776!5m2!1sen!2sbd",
+      title: "Restaurant Hub Location - Magura, Bangladesh",
+    },
   },
 
   // Social Media Links

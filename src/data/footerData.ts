@@ -60,7 +60,7 @@ const footerData = {
 
   // Account Links
   accountLinks: [
-    { name: "Sign In", href: "/login" },
+    { name: "Sign In", href: "/auth/login" },
     { name: "View Cart", href: "/cart" },
     { name: "Return Policy", href: "/return-policy" },
     { name: "Become a Vendor", href: "/vendor-signup" },

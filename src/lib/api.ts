@@ -11,10 +11,15 @@ const api = axios.create({
 export interface Restaurant {
   id: number;
   name: string;
-  location: string;
+  location: string | { latitude: number; longitude: number };
   logo_url?: string;
   owner_id: number;
   approved: boolean;
+  description?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  imageUrl?: string;
 }
 
 export interface MenuItem {
@@ -261,6 +266,25 @@ export const getHeroSliders = async (): Promise<HeroSlider[]> => {
     console.error("Error fetching hero sliders:", error);
     throw error;
   }
+};
+
+export const formatRestaurantLocation = (restaurant: Restaurant): string => {
+  if (typeof restaurant.location === "string") {
+    return restaurant.location;
+  }
+
+  if (restaurant.address) {
+    return restaurant.address;
+  }
+
+  if (restaurant.location && typeof restaurant.location === "object") {
+    const { latitude, longitude } = restaurant.location;
+    if (latitude && longitude) {
+      return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    }
+  }
+
+  return "Location not available";
 };
 
 export default api;

@@ -241,31 +241,20 @@ export interface HeroSlider {
 
 export const getHeroSliders = async (): Promise<HeroSlider[]> => {
   try {
-    const response = await fetch(`${api}/content/hero-sliders`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch hero sliders: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const response = await api.get("/content/hero-sliders");
 
     // Handle different response formats (array or paginated response)
-    if (Array.isArray(data)) {
-      return data as HeroSlider[];
+    if (Array.isArray(response.data)) {
+      return response.data as HeroSlider[];
     } else if (
-      data &&
-      typeof data === "object" &&
-      "data" in data &&
-      Array.isArray(data.data)
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data &&
+      Array.isArray(response.data.data)
     ) {
-      return data.data as HeroSlider[];
+      return response.data.data as HeroSlider[];
     } else {
-      console.warn("Unexpected hero sliders data format:", data);
+      console.warn("Unexpected hero sliders data format:", response.data);
       return [];
     }
   } catch (error) {

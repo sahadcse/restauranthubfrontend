@@ -14,7 +14,7 @@ export function useHeroSliders() {
       const sliderData = await getHeroSliders();
       setHeroSliders(sliderData);
     } catch (sliderError) {
-      console.warn("Failed to fetch hero sliders:", sliderError);
+      console.error("Failed to fetch hero sliders:", sliderError);
       setError("Failed to load hero sliders");
       setHeroSliders([]);
     } finally {

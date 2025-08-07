@@ -100,3 +100,17 @@ export function AuthLoadingSpinner() {
     </div>
   );
 }
+
+// New reusable loading component
+export function SimpleLoadingSpinner({
+  message = "Loading...",
+}: {
+  message?: string;
+}) {
+  return (
+    <div className="flex items-center justify-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+      <p className="text-gray-500">{message}</p>
+    </div>
+  );
+}

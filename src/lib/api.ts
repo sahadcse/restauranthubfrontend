@@ -220,11 +220,58 @@ export const getCustomerOrders = async (token: string): Promise<Order[]> => {
   return response.data;
 };
 
-// export const getCustomerOrders = async (token: string): Promise<Order[]> => {
-//   const response = await api.get<Order[]>('/orders/restaurant/', {
-//     headers: { Authorization: `Bearer ${token}` },
-//   });
-//   return response.data;
-// };
+export interface HeroSlider {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  price?: number;
+  buttonText?: string;
+  linkUrl?: string;
+  linkType: "NONE" | "RESTAURANT" | "CAMPAIGN" | "MENU_ITEM" | "EXTERNAL";
+  linkTargetId?: string;
+  displayOrder: number;
+  isActive: boolean;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  tenantId?: string;
+}
+
+export const getHeroSliders = async (): Promise<HeroSlider[]> => {
+  try {
+    const response = await fetch(`${api}/content/hero-sliders`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch hero sliders: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Handle different response formats (array or paginated response)
+    if (Array.isArray(data)) {
+      return data as HeroSlider[];
+    } else if (
+      data &&
+      typeof data === "object" &&
+      "data" in data &&
+      Array.isArray(data.data)
+    ) {
+      return data.data as HeroSlider[];
+    } else {
+      console.warn("Unexpected hero sliders data format:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching hero sliders:", error);
+    throw error;
+  }
+};
 
 export default api;

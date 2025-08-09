@@ -3,10 +3,12 @@
 import Header from "../components/layout/public/Header";
 import Footer from "../components/layout/public/Footer";
 import HeroSliderComponent from "../components/HeroSlider";
+import CategoriesSection from "../components/CategoriesSection";
 import RestaurantGrid from "../components/RestaurantGrid";
 import { useAuth } from "../contexts/authContext";
 import { useRestaurants } from "../hooks/useRestaurants";
 import { useHeroSliders } from "../hooks/useHeroSliders";
+import { useCategories } from "../hooks/useCategories";
 
 export default function Home() {
   const { token } = useAuth();
@@ -16,6 +18,11 @@ export default function Home() {
     loading: slidersLoading,
     error: slidersError,
   } = useHeroSliders();
+  const {
+    categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
 
   const handleRetry = () => {
     window.location.reload();
@@ -33,6 +40,13 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Categories Section */}
+      <CategoriesSection
+        categories={categories}
+        loading={categoriesLoading}
+        error={categoriesError}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

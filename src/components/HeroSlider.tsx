@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { HeroSlider } from "../lib/api";
+import { HeroSlider } from "../lib/interfaces";
 
 interface HeroSliderProps {
   sliders: HeroSlider[];

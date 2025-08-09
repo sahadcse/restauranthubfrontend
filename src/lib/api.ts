@@ -1,40 +1,34 @@
-// frontend/lib/api.ts
+// Legacy API file - maintained for backward compatibility
+// New code should import from ./interfaces
+
 import axios from "axios";
 
+// Import interfaces from the new centralized location
+export * from "./interfaces";
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api", // Backend URL
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export interface Restaurant {
-  id: number;
-  name: string;
-  location: string | { latitude: number; longitude: number };
-  logo_url?: string;
-  owner_id: number;
-  approved: boolean;
-  description?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  imageUrl?: string;
-}
+// Import types for internal use
+import {
+  Restaurant,
+  MenuItem,
+  Order,
+  UserRegistrationData,
+  RegisterResponse,
+  HeroSlider,
+  Category,
+  ApiErrorResponse,
+} from "./interfaces";
 
-export interface MenuItem {
-  id: number;
-  restaurant_id: number;
-  name: string;
-  price: number;
-  description?: string;
-  image_url?: string;
-}
+// Import demo data
+import { demoCategories } from "../data";
 
-export interface CartItem extends MenuItem {
-  quantity: number;
-}
-
+// API Functions
 export const getRestaurants = async (): Promise<Restaurant[]> => {
   const response = await api.get<Restaurant[]>("/restaurants");
   return response.data;
@@ -46,33 +40,6 @@ export const getMenuItems = async (
   const response = await api.get<MenuItem[]>(`/menu/${restaurantId}`);
   return response.data;
 };
-
-export interface Order {
-  id: number;
-  user_id: number;
-  restaurant_id: number;
-  status: "pending" | "preparing" | "shipped" | "delivered";
-  total: number;
-  created_at: string;
-}
-
-export interface UserRegistrationData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  privacyConsent: boolean;
-}
-
-export interface RegisterResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    role: "CUSTOMER" | "RESTAURANT_OWNER" | "ADMIN";
-  };
-}
 
 export const registerUser = async (
   userData: UserRegistrationData,
@@ -179,7 +146,7 @@ export const getAllRestaurantsForAdmin = async (
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-  return response.data; // Admin sees all restaurants
+  return response.data;
 };
 
 export const updateRestaurant = async (
@@ -193,7 +160,6 @@ export const updateRestaurant = async (
   return response.data;
 };
 
-// Update restaurant details (admin only) "/:id/approve" const { approved } = req.body;
 export const updateStatusRestaurant = async (
   id: number,
   data: { approved: boolean },
@@ -225,25 +191,6 @@ export const getCustomerOrders = async (token: string): Promise<Order[]> => {
   return response.data;
 };
 
-export interface HeroSlider {
-  id: string;
-  title: string;
-  description?: string;
-  imageUrl: string;
-  price?: number;
-  buttonText?: string;
-  linkUrl?: string;
-  linkType: "NONE" | "RESTAURANT" | "CAMPAIGN" | "MENU_ITEM" | "EXTERNAL";
-  linkTargetId?: string;
-  displayOrder: number;
-  isActive: boolean;
-  startDate?: string;
-  endDate?: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId?: string;
-}
-
 export const getHeroSliders = async (): Promise<HeroSlider[]> => {
   try {
     const response = await api.get("/content/hero-sliders");
@@ -268,6 +215,45 @@ export const getHeroSliders = async (): Promise<HeroSlider[]> => {
   }
 };
 
+export const getCategories = async (): Promise<Category[]> => {
+  try {
+    const response = await api.get("/restaurants/categories");
+
+    // Handle different response formats (array or paginated response)
+    if (Array.isArray(response.data)) {
+      return response.data as Category[];
+    } else if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data &&
+      Array.isArray(response.data.data)
+    ) {
+      return response.data.data as Category[];
+    } else {
+      console.warn("Unexpected categories data format:", response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+
+    const apiError = error as ApiErrorResponse;
+
+    // Only return demo data if explicitly needed for development
+    if (
+      process.env.NODE_ENV === "development" &&
+      apiError?.response?.status === 404
+    ) {
+      console.info(
+        "Categories endpoint not found, using demo data for development"
+      );
+      return demoCategories;
+    }
+
+    throw error;
+  }
+};
+
+// Utility functions
 export const formatRestaurantLocation = (restaurant: Restaurant): string => {
   if (typeof restaurant.location === "string") {
     return restaurant.location;

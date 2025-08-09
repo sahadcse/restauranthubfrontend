@@ -1,6 +1,7 @@
-import { Restaurant, formatRestaurantLocation } from "../lib/api";
 import Link from "next/link";
 import Image from "next/image";
+import { Restaurant } from "../lib/interfaces";
+import { formatRestaurantLocation } from "../lib/api";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;

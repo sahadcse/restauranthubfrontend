@@ -251,7 +251,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
             <div className="gi-header-buttons">
               <div className="flex justify-end items-center space-x-4">
                 <Link
-                  href="/login"
+                  href="/auth/login"
                   className="gi-header-btn gi-header-user relative text-gray-700 hover:text-blue-600"
                   title="Account"
                 >

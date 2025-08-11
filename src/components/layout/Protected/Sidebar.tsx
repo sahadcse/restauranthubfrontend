@@ -1,9 +1,8 @@
 "use client";
 
+import { UserRole } from "@/src/lib/interfaces/enums";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-type UserRole = "admin" | "customer" | "restaurant" | "superAdmin";
 
 interface NavigationItem {
   name: string;
@@ -17,49 +16,49 @@ const navigationItems: NavigationItem[] = [
     name: "Dashboard",
     href: "/dashboard",
     icon: "🏠",
-    roles: ["admin", "customer", "restaurant", "superAdmin"],
+    roles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.RESTAURANT_OWNER, UserRole.SUPER_ADMIN],
   },
   {
     name: "Orders",
     href: "/orders",
     icon: "🛒",
-    roles: ["customer", "restaurant", "admin"],
+    roles: [UserRole.CUSTOMER, UserRole.RESTAURANT_OWNER, UserRole.ADMIN],
   },
   {
     name: "Menu Management",
     href: "/menu",
     icon: "🍽️",
-    roles: ["restaurant"],
+    roles: [UserRole.RESTAURANT_OWNER],
   },
   {
     name: "Restaurant Management",
     href: "/restaurants",
     icon: "🏪",
-    roles: ["admin", "superAdmin"],
+    roles: [UserRole.ADMIN, UserRole.SUPER_ADMIN],
   },
   {
     name: "User Management",
     href: "/users",
     icon: "👥",
-    roles: ["admin", "superAdmin"],
+    roles: [UserRole.ADMIN, UserRole.SUPER_ADMIN],
   },
   {
     name: "Analytics",
     href: "/analytics",
     icon: "📊",
-    roles: ["restaurant", "admin", "superAdmin"],
+    roles: [UserRole.RESTAURANT_OWNER, UserRole.ADMIN, UserRole.SUPER_ADMIN],
   },
   {
     name: "System Settings",
     href: "/settings",
     icon: "⚙️",
-    roles: ["superAdmin"],
+    roles: [UserRole.SUPER_ADMIN],
   },
   {
     name: "Profile",
     href: "/profile",
     icon: "👤",
-    roles: ["admin", "customer", "restaurant", "superAdmin"],
+    roles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.RESTAURANT_OWNER, UserRole.SUPER_ADMIN],
   },
 ];
 
@@ -72,10 +71,12 @@ export default function Sidebar({ userRole }: { userRole: UserRole }) {
 
   const getRoleBasedPrefix = (role: UserRole): string => {
     const prefixes = {
-      admin: "/admin",
-      customer: "/customer",
-      restaurant: "/restaurant",
-      superAdmin: "/superadmin",
+      [UserRole.CUSTOMER]: "/customer-panel",
+      [UserRole.RESTAURANT_OWNER]: "/restaurant-panel",
+      [UserRole.RESTAURANT_STAFF]: "/restaurant-staff",
+      [UserRole.ADMIN]: "/admin",
+      [UserRole.SUPER_ADMIN]: "/superadmin",
+      [UserRole.DRIVER]: "/driver-panel",
     };
     return prefixes[role];
   };

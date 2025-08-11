@@ -1,17 +1,8 @@
 "use client";
 
+import { UserRole } from "@/src/lib/interfaces/enums";
 import { useState } from "react";
-
-type UserRole = "admin" | "customer" | "restaurant" | "superAdmin";
-
-interface User {
-  id: string;
-  email: string;
-  role: UserRole;
-  name?: string;
-  firstName?: string;
-  lastName?: string;
-}
+import { User } from "@/src/lib/interfaces";
 
 interface HeaderProps {
   user: User;
@@ -22,17 +13,19 @@ export default function Header({ user, onLogout }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const getRoleBadgeColor = (role: UserRole): string => {
-    const colors = {
-      admin: "bg-blue-100 text-blue-800",
-      customer: "bg-green-100 text-green-800",
-      restaurant: "bg-purple-100 text-purple-800",
-      superAdmin: "bg-red-100 text-red-800",
+    const colors: Record<UserRole, string> = {
+      [UserRole.ADMIN]: "bg-blue-100 text-blue-800",
+      [UserRole.CUSTOMER]: "bg-green-100 text-green-800",
+      [UserRole.RESTAURANT_OWNER]: "bg-purple-100 text-purple-800",
+      [UserRole.SUPER_ADMIN]: "bg-red-100 text-red-800",
+      [UserRole.RESTAURANT_STAFF]: "bg-yellow-100 text-yellow-800",
+      [UserRole.DRIVER]: "bg-indigo-100 text-indigo-800",
     };
     return colors[role];
   };
 
   const getUserDisplayName = (user: User): string => {
-    if (user.name) return user.name;
+    // if (user.name) return user.name;
     if (user.firstName || user.lastName) {
       return `${user.firstName || ""} ${user.lastName || ""}`.trim();
     }

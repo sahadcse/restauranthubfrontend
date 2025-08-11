@@ -1,75 +1,56 @@
 "use client";
 
-import { AuthProvider, useAuth } from "@/src/contexts/authContext";
-import LoadingSpinner from "@/src/components/ui/LoadingSpinner";
+import { AuthProvider } from "@/src/contexts/authContext";
+import ProtectedRoute from "@/src/components/auth/ProtectedRoute";
 import Sidebar from "@/src/components/layout/Protected/Sidebar";
 import Header from "@/src/components/layout/Protected/Header";
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/src/contexts/authContext";
+import { UserRole } from "@/src/lib/interfaces/enums";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 
-type UserRole = "admin" | "customer" | "restaurant" | "superAdmin";
+// Route-to-role mapping for different sections
+const getRequiredRoles = (pathname: string): string[] => {
+  if (pathname.includes("customer-panel")) {
+    return [UserRole.CUSTOMER];
+  }
+  if (pathname.includes("admin")) {
+    return [UserRole.ADMIN, UserRole.SUPER_ADMIN];
+  }
+  if (pathname.includes("restaurant") || pathname.includes("dashboard")) {
+    return [UserRole.RESTAURANT_OWNER, UserRole.RESTAURANT_STAFF];
+  }
+  if (pathname.includes("driver")) {
+    return [UserRole.DRIVER];
+  }
+  if (pathname.includes("superadmin")) {
+    return [UserRole.SUPER_ADMIN];
+  }
 
-// Role-based route protection mapping
-const PROTECTED_ROUTES: Record<string, UserRole[]> = {
-  "/admin": ["admin", "superAdmin"],
-  "/customer": ["customer"],
-  "/restaurant": ["restaurant"],
-  "/superadmin": ["superAdmin"],
+  // Default: allow all authenticated users
+  return [];
 };
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout, isAuthenticated } = useAuth();
-  const router = useRouter();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (loading) return;
-
-    // Check if user is authenticated
-    if (!isAuthenticated || !user) {
-      router.push("/auth/login");
-      return;
-    }
-
-    // Check role-based authorization
-    const currentRoute = `/${pathname.split("/")[1]}`;
-    const allowedRoles = PROTECTED_ROUTES[currentRoute];
-
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
-      // Redirect to appropriate dashboard based on user role
-      const redirectMap: Record<UserRole, string> = {
-        admin: "/admin",
-        customer: "/customer",
-        restaurant: "/restaurant",
-        superAdmin: "/superadmin",
-      };
-
-      router.push(redirectMap[user.role] || "/unauthorized");
-      return;
-    }
-
-    setIsAuthorized(true);
-  }, [user, loading, pathname, router, isAuthenticated]);
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  if (!isAuthenticated || !user || !isAuthorized) {
-    return <LoadingSpinner />;
-  }
+  const requiredRoles = useMemo(() => getRequiredRoles(pathname), [pathname]);
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar userRole={user.role} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header user={user} onLogout={logout} />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-          {children}
-        </main>
-      </div>
-    </div>
+    <ProtectedRoute requiredRoles={requiredRoles}>
+      {user && (
+        <div className="flex h-screen bg-gray-50">
+          <Sidebar userRole={user.role} />
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <Header user={user} onLogout={logout} />
+            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+              {children}
+            </main>
+          </div>
+        </div>
+      )}
+    </ProtectedRoute>
   );
 }
 

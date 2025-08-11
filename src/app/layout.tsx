@@ -15,6 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
+
       <head>
         <link
           rel="stylesheet"
@@ -24,6 +25,7 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdn-uicons.flaticon.com/2.4.0/uicons-brands/css/uicons-brands.css"
         ></link>
+        <link rel="icon" href="/siteMainLogo.jpg" sizes="any" />
       </head>
       <body className="font-sans">
         <AuthProvider>

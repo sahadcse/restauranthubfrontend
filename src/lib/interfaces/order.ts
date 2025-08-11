@@ -1,15 +1,15 @@
 // Order management interfaces
 
 import { BaseEntity } from "./common";
-// import { CartItem } from "./restaurant";
-
-export type OrderStatus =
-  | "pending"
-  | "preparing"
-  | "ready"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
+import {
+  OrderStatus,
+  PaymentStatus,
+  PaymentMethod,
+  DeliveryStatus,
+  OrderType,
+  PriorityLevel,
+  ReturnStatus,
+} from "./enums";
 
 export interface Order extends BaseEntity {
   user_id: number;
@@ -24,6 +24,20 @@ export interface Order extends BaseEntity {
   actualDeliveryTime?: string;
   payment?: Payment;
   delivery?: Delivery;
+  userId: string;
+  restaurantId: string;
+  paymentStatus: PaymentStatus;
+  subtotal: number;
+  tax: number;
+  deliveryFee: number;
+  discount: number;
+  orderType: OrderType;
+  deliveryInstructions?: string;
+  source?: string;
+  priority?: PriorityLevel;
+  correlationId: string;
+  tenantId: string;
+  cancelReason?: string;
 }
 
 export interface OrderItem {
@@ -63,26 +77,15 @@ export interface OrderCreateRequest {
   deliveryAddress: DeliveryAddress;
   notes?: string;
   paymentMethod?: PaymentMethod;
+  [key: string]: unknown; // Add index signature for compatibility
 }
 
 export interface OrderUpdateRequest {
   status?: OrderStatus;
   notes?: string;
   estimatedDeliveryTime?: string;
+  [key: string]: unknown; // Add index signature for compatibility
 }
-
-export type PaymentMethod =
-  | "CASH"
-  | "CREDIT_CARD"
-  | "DEBIT_CARD"
-  | "DIGITAL_WALLET"
-  | "ONLINE";
-export type PaymentStatus =
-  | "PENDING"
-  | "PROCESSING"
-  | "COMPLETED"
-  | "FAILED"
-  | "REFUNDED";
 
 export interface Payment extends BaseEntity {
   orderId: string;
@@ -92,14 +95,10 @@ export interface Payment extends BaseEntity {
   transactionId?: string;
   refundAmount?: number;
   refundReason?: string;
+  currency: string;
+  gatewayResponse?: Record<string, unknown>;
+  refundStatus?: ReturnStatus;
 }
-
-export type DeliveryStatus =
-  | "ASSIGNED"
-  | "PICKED_UP"
-  | "IN_TRANSIT"
-  | "DELIVERED"
-  | "FAILED";
 
 export interface Delivery extends BaseEntity {
   orderId: string;
@@ -109,6 +108,11 @@ export interface Delivery extends BaseEntity {
   actualDeliveryTime?: string;
   deliveryNotes?: string;
   driver?: Driver;
+  trackingUrl?: string;
+  assignedAt?: Date;
+  pickedUpAt?: Date;
+  completedAt?: Date;
+  tenantId: string;
 }
 
 export interface Driver extends BaseEntity {
@@ -124,6 +128,8 @@ export interface Driver extends BaseEntity {
     longitude: number;
     lastUpdated: string;
   };
+  userId: string;
+  tenantId: string;
 }
 
 export interface VehicleInfo {
@@ -159,4 +165,24 @@ export interface OrderStats {
   averageOrderValue: number;
   ordersByStatus: Record<OrderStatus, number>;
   recentOrders: Order[];
+}
+
+export interface CreateOrderRequest {
+  restaurantId: string;
+  items: {
+    menuItemId: string;
+    variantId?: string;
+    quantity: number;
+    notes?: string;
+  }[];
+  orderType: OrderType;
+  deliveryAddress?: Record<string, unknown>;
+  deliveryInstructions?: string;
+  notes?: string;
+}
+
+export interface UpdateOrderRequest {
+  status?: OrderStatus;
+  notes?: string;
+  estimatedDeliveryTime?: Date;
 }

@@ -1,8 +1,6 @@
 import { apiClient } from "./client";
-import {
-  Restaurant,
-  MenuItem,
-} from "../types/api";
+import { Restaurant, MenuItem } from "../interfaces";
+// import { demoCategories } from "../../data";
 
 // Restaurant CRUD operations
 export const restaurantApi = {
@@ -15,9 +13,9 @@ export const restaurantApi = {
   getById: async (id: number): Promise<Restaurant> => {
     return apiClient.get<Restaurant>(`/restaurants/${id}`);
   },
-
+  
   // Get restaurant by owner (authenticated)
-  getByOwner: async (token: string): Promise<Restaurant> => {
+getByOwner: async (token: string): Promise<Restaurant> => {
     const config = apiClient.createAuthenticatedConfig(token);
     return apiClient.get<Restaurant>("/restaurants/my-restaurant", config);
   },
@@ -60,6 +58,40 @@ export const restaurantApi = {
     const config = apiClient.createAuthenticatedConfig(token);
     return apiClient.delete(`/restaurants/${id}`, config);
   },
+
+  // Get categories
+  // getCategories: async (): Promise<Category[]> => {
+  //   try {
+  //     const result = await apiClient.getPaginated<Category>(
+  //       "/restaurants/categories"
+  //     );
+
+  //     // If we get an empty result in development, use demo data
+  //     if (
+  //       process.env.NODE_ENV === "development" &&
+  //       (!result || result.length === 0)
+  //     ) {
+  //       console.info(
+  //         "API returned empty results, using demo data for development"
+  //       );
+  //       return demoCategories;
+  //     }
+
+  //     return result;
+  //   } catch (error) {
+  //     console.error("Error fetching categories:", error);
+
+  //     // Always return demo data in development if API fails
+  //     if (process.env.NODE_ENV === "development") {
+  //       console.info(
+  //         "Categories endpoint failed, using demo data for development"
+  //       );
+  //       return demoCategories;
+  //     }
+
+  //     throw error;
+  //   }
+  // },
 };
 
 // Menu item operations
@@ -108,3 +140,4 @@ export const getAllRestaurantsForAdmin = restaurantApi.getAllForAdmin;
 export const updateRestaurant = restaurantApi.update;
 export const updateStatusRestaurant = restaurantApi.updateStatus;
 export const deleteRestaurant = restaurantApi.delete;
+// export const getCategories = restaurantApi.getCategories;

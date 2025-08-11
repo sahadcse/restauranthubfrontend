@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/authContext";
+import { authService } from "../../lib/services/authService";
+import { redirectManager } from "../../lib/services/redirectManager";
 import LoadingSpinner from "../ui/LoadingSpinner";
 
 export interface ProtectedRouteProps {
@@ -10,6 +12,7 @@ export interface ProtectedRouteProps {
   requiredRoles?: string[];
   redirectOnFail?: string;
   fallbackComponent?: React.ReactNode;
+  showCountdown?: boolean;
 }
 
 export default function ProtectedRoute({
@@ -17,6 +20,7 @@ export default function ProtectedRoute({
   requiredRoles,
   redirectOnFail,
   fallbackComponent,
+  showCountdown = true,
 }: ProtectedRouteProps) {
   const { isAuthenticated, user, loading } = useAuth();
   const router = useRouter();
@@ -25,7 +29,6 @@ export default function ProtectedRoute({
   );
   const [shouldRedirect, setShouldRedirect] = useState<string | null>(null);
 
-  // Handle redirects in a separate useEffect to avoid state updates during render
   useEffect(() => {
     if (shouldRedirect) {
       router.push(shouldRedirect);
@@ -34,55 +37,61 @@ export default function ProtectedRoute({
   }, [shouldRedirect, router]);
 
   useEffect(() => {
-    // Don't redirect during initial loading
     if (loading) return;
 
-    // Check authentication
     if (!isAuthenticated) {
-      setRedirectCountdown(5);
-
-      const countdownInterval = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev === null) return null;
-
-          const newCount = prev - 1;
-
-          if (newCount <= 0) {
-            clearInterval(countdownInterval);
-            // Schedule redirect instead of calling router.push directly
-            setShouldRedirect("/auth/login");
-            return null;
-          }
-
-          return newCount;
-        });
-      }, 1000);
-
-      return () => clearInterval(countdownInterval);
+      if (showCountdown) {
+        setRedirectCountdown(5);
+        const countdownInterval = setInterval(() => {
+          setRedirectCountdown((prev) => {
+            if (prev === null) return null;
+            const newCount = prev - 1;
+            if (newCount <= 0) {
+              clearInterval(countdownInterval);
+              setShouldRedirect(
+                redirectManager.getRedirectPath("unauthenticated")
+              );
+              return null;
+            }
+            return newCount;
+          });
+        }, 1000);
+        return () => clearInterval(countdownInterval);
+      } else {
+        setShouldRedirect(redirectManager.getRedirectPath("unauthenticated"));
+      }
+      return;
     }
 
-    // Check role-based access if requiredRoles is specified
     if (requiredRoles && requiredRoles.length > 0) {
-      const userRole = user?.role;
-      const hasRequiredRole = userRole && requiredRoles.includes(userRole);
-
-      if (!hasRequiredRole) {
-        // Schedule redirect instead of calling router.push directly
-        setShouldRedirect(redirectOnFail || "/unauthorized");
+      const permissionCheck = authService.checkPermissions(
+        user?.role,
+        requiredRoles
+      );
+      if (permissionCheck.shouldRedirect) {
+        const redirectPath =
+          redirectOnFail ||
+          permissionCheck.redirectPath ||
+          redirectManager.getRedirectPath("unauthorized");
+        setShouldRedirect(redirectPath);
         return;
       }
     }
 
-    // Clear any pending redirects if user is now authorized
     setRedirectCountdown(null);
-  }, [isAuthenticated, user, loading, requiredRoles, redirectOnFail]);
+  }, [
+    isAuthenticated,
+    user,
+    loading,
+    requiredRoles,
+    redirectOnFail,
+    showCountdown,
+  ]);
 
-  // Show loading spinner during initial auth check
   if (loading) {
     return <LoadingSpinner fullScreen text="Authenticating..." size="large" />;
   }
 
-  // Show authentication required message with countdown
   if (redirectCountdown !== null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -118,7 +127,11 @@ export default function ProtectedRoute({
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
-              onClick={() => setShouldRedirect("/auth/login")}
+              onClick={() =>
+                setShouldRedirect(
+                  redirectManager.getRedirectPath("unauthenticated")
+                )
+              }
               className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-colors"
             >
               Login Now
@@ -135,12 +148,12 @@ export default function ProtectedRoute({
     );
   }
 
-  // Show unauthorized message if user doesn't have required role
   if (requiredRoles && requiredRoles.length > 0) {
-    const userRole = user?.role;
-    const hasRequiredRole = userRole && requiredRoles.includes(userRole);
-
-    if (!hasRequiredRole) {
+    const permissionCheck = authService.checkPermissions(
+      user?.role,
+      requiredRoles
+    );
+    if (!permissionCheck.hasPermission) {
       if (fallbackComponent) {
         return <>{fallbackComponent}</>;
       }
@@ -173,7 +186,7 @@ export default function ProtectedRoute({
               <p className="text-sm text-red-800">
                 <strong>Required roles:</strong> {requiredRoles.join(", ")}
                 <br />
-                <strong>Your role:</strong> {userRole || "None"}
+                <strong>Your role:</strong> {user?.role || "None"}
               </p>
             </div>
             <button
@@ -188,11 +201,10 @@ export default function ProtectedRoute({
     }
   }
 
-  // User is authenticated and authorized
   return <>{children}</>;
 }
 
-// Higher-order component version for easier usage
+// Simplified HOC
 export function withProtection<P extends object>(
   Component: React.ComponentType<P>,
   requiredRoles?: string[],
@@ -210,25 +222,21 @@ export function withProtection<P extends object>(
   };
 }
 
-// Hook for checking permissions without redirecting
+// Simplified permissions hook
 export function usePermissions(requiredRoles?: string[]) {
   const { isAuthenticated, user, loading } = useAuth();
 
-  const hasPermission = React.useMemo(() => {
-    if (loading || !isAuthenticated) return false;
-
-    if (!requiredRoles || requiredRoles.length === 0) {
-      return isAuthenticated;
+  const permissionCheck = React.useMemo(() => {
+    if (loading || !isAuthenticated) {
+      return { hasPermission: false, userRole: undefined };
     }
-
-    const userRole = user?.role;
-    return userRole && requiredRoles.includes(userRole);
+    return authService.checkPermissions(user?.role, requiredRoles);
   }, [isAuthenticated, user, loading, requiredRoles]);
 
   return {
-    hasPermission,
+    hasPermission: permissionCheck.hasPermission,
     isAuthenticated,
-    userRole: user?.role,
+    userRole: permissionCheck.userRole,
     loading,
   };
 }

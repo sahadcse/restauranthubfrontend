@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useAuth } from "../../../contexts/authContext";
 import { useRouter } from "next/navigation";
-import { registerUser } from "../../../lib/api";
+import { authApi } from "../../../lib/api/auth";
+import { UserRegistrationData } from "../../../lib/interfaces";
+import { UserRole } from "../../../lib/interfaces/enums";
+import { redirectManager } from "../../../lib/services/redirectManager";
 import Link from "next/link";
-import axios from "axios";
 import Image from "next/image";
 import Header from "../../../components/layout/public/Header";
 import Footer from "../../../components/layout/public/Footer";
@@ -13,6 +15,7 @@ import Breadcrumb, { BreadcrumbItem } from "../../../components/ui/Breadcrumb";
 import Input from "../../../components/ui/Input";
 import SocialLoginButtons from "../../../components/ui/SocialLoginButtons";
 import socialData from "../../../data/socialData.json";
+import { ApiError } from "../../../lib/errors/ApiError";
 import {
   FaFacebookF,
   FaGoogle,
@@ -26,29 +29,52 @@ import {
   FaEyeSlash,
 } from "react-icons/fa";
 
-// Icon mapping for social icons
+// Icon mapping for social icons - could be moved to a utility file
 const getSocialIcon = (icon: string) => {
-  switch (icon) {
-    case "facebook":
-      return <FaFacebookF className="text-white text-xl" />;
-    case "google":
-      return <FaGoogle className="text-white text-xl" />;
-    case "twitter":
-      return <FaTwitter className="text-white text-xl" />;
-    case "instagram":
-      return <FaInstagram className="text-white text-xl" />;
-    default:
-      return null;
-  }
+  const iconMap = {
+    facebook: <FaFacebookF className="text-white text-xl" />,
+    google: <FaGoogle className="text-white text-xl" />,
+    twitter: <FaTwitter className="text-white text-xl" />,
+    instagram: <FaInstagram className="text-white text-xl" />,
+  };
+  return iconMap[icon as keyof typeof iconMap] || null;
+};
+
+// Form validation utility
+const validateRegistrationForm = (formData: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  privacyConsent: boolean;
+}) => {
+  const errors: Record<string, string> = {};
+
+  if (!formData.firstName.trim()) errors.firstName = "First name is required";
+  if (!formData.lastName.trim()) errors.lastName = "Last name is required";
+  if (!formData.email.trim()) errors.email = "Email is required";
+  else if (!/\S+@\S+\.\S+/.test(formData.email))
+    errors.email = "Email is invalid";
+  if (!formData.phoneNumber.trim())
+    errors.phoneNumber = "Phone number is required";
+  if (!formData.password.trim()) errors.password = "Password is required";
+  else if (formData.password.length < 8)
+    errors.password = "Password must be at least 8 characters";
+
+  return errors;
 };
 
 export default function Register() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [role] = useState<"customer" | "restaurant-owner">("customer"); // Fixed to customer
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    privacyConsent: false,
+  });
+  const [role] = useState<"customer" | "restaurant-owner">("customer");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
@@ -58,60 +84,57 @@ export default function Register() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-
-    if (!firstName.trim()) errors.firstName = "First name is required";
-    if (!lastName.trim()) errors.lastName = "Last name is required";
-    if (!email.trim()) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
-    if (!phoneNumber.trim()) errors.phoneNumber = "Phone number is required";
-    if (!password.trim()) errors.password = "Password is required";
-    else if (password.length < 8)
-      errors.password = "Password must be at least 8 characters";
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear field error when user starts typing
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
+    console.log("Registering user:", formData);
     e.preventDefault();
     setError("");
     setFieldErrors({});
 
-    if (!validateForm()) return;
+    const validationErrors = validateRegistrationForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      return;
+    }
 
     if (!agreeToTerms) {
       setError("Please agree to the terms of service");
       return;
+    } else {
+      formData.privacyConsent = agreeToTerms;
     }
 
     setLoading(true);
 
     try {
-      const userData = {
-        email,
-        password,
-        firstName,
-        lastName,
-        phoneNumber,
-        privacyConsent: agreeToTerms,
+      const userData: UserRegistrationData = {
+        ...formData,
+        // privacyConsent: agreeToTerms,
+        // role:
+        //   role === "customer" ? UserRole.CUSTOMER : UserRole.RESTAURANT_OWNER,
       };
 
-      const response = await registerUser(userData, role);
+      const response = await authApi.register(userData, role);
       login(response.token);
 
-      if (response.user.role === "RESTAURANT_OWNER") {
-        router.push("/dashboard/orders");
-      } else {
-        router.push("/");
-      }
+      // Use redirectManager for consistent redirect logic
+      const redirectPath = redirectManager.getPostRegistrationPath(
+        response.user.role
+      );
+      router.push(redirectPath);
     } catch (error) {
       console.error("Registration error:", error);
       let errorMessage = "Registration failed. Please try again.";
 
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || errorMessage;
+      if (error instanceof ApiError) {
+        errorMessage = error.message || errorMessage;
       }
 
       setError(errorMessage);
@@ -223,14 +246,15 @@ export default function Register() {
               </div>
 
               <form onSubmit={handleRegister} className="space-y-6">
-                {/* Role Selection - Hidden since it's fixed to customer */}
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <Input
                     type="text"
                     placeholder="First Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    value={formData.firstName}
+                    onChange={(e) =>
+                      handleInputChange("firstName", e.target.value)
+                    }
                     required
                     variant="ghost"
                     leftIcon={<FaUser className="h-4 w-4" />}
@@ -239,8 +263,10 @@ export default function Register() {
                   <Input
                     type="text"
                     placeholder="Last Name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    value={formData.lastName}
+                    onChange={(e) =>
+                      handleInputChange("lastName", e.target.value)
+                    }
                     required
                     variant="ghost"
                     error={fieldErrors.lastName}
@@ -251,8 +277,8 @@ export default function Register() {
                 <Input
                   type="email"
                   placeholder="Enter Your Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   required
                   variant="ghost"
                   leftIcon={<FaEnvelope className="h-4 w-4" />}
@@ -263,8 +289,10 @@ export default function Register() {
                 <Input
                   type="tel"
                   placeholder="Enter Your Phone Number"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  value={formData.phoneNumber}
+                  onChange={(e) =>
+                    handleInputChange("phoneNumber", e.target.value)
+                  }
                   required
                   variant="ghost"
                   leftIcon={<FaPhone className="h-4 w-4" />}
@@ -275,8 +303,10 @@ export default function Register() {
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter Your Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   required
                   variant="ghost"
                   leftIcon={<FaLock className="h-4 w-4" />}

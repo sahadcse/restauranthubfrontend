@@ -1,13 +1,10 @@
 // Content management interfaces (CMS)
 
 import { BaseEntity } from "./common";
+import { SliderLinkType } from "./enums";
 
-export type LinkType =
-  | "NONE"
-  | "RESTAURANT"
-  | "CAMPAIGN"
-  | "MENU_ITEM"
-  | "EXTERNAL";
+// Use SliderLinkType from enums instead of local LinkType
+export type LinkType = SliderLinkType;
 
 export interface HeroSlider extends BaseEntity {
   title: string;
@@ -36,6 +33,12 @@ export interface Banner extends BaseEntity {
   startDate?: string;
   endDate?: string;
   bannerType: "PROMOTIONAL" | "OFFER" | "ANNOUNCEMENT";
+  subtitle?: string;
+  hurryText?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  linkTargetId?: string;
+  tenantId?: string;
 }
 
 export interface DealSection extends BaseEntity {
@@ -44,6 +47,11 @@ export interface DealSection extends BaseEntity {
   isActive: boolean;
   displayOrder: number;
   deals?: Deal[];
+  subtitle?: string;
+  timerDays?: number;
+  timerHours?: number;
+  timerMinutes?: number;
+  tenantId?: string;
 }
 
 export interface Deal extends BaseEntity {
@@ -68,6 +76,14 @@ export interface OfferBanner extends BaseEntity {
   isActive: boolean;
   startDate?: string;
   endDate?: string;
+  discount: string;
+  image: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+  linkType?: LinkType;
+  linkTargetId?: string;
+  tenantId?: string;
 }
 
 export interface NewArrivalsSection extends BaseEntity {
@@ -85,6 +101,9 @@ export interface Tab extends BaseEntity {
   displayOrder: number;
   isActive: boolean;
   menuItems?: string[]; // Array of menu item IDs
+  name: string;
+  order: number;
+  tenantId?: string;
 }
 
 export interface OfferSection extends BaseEntity {
@@ -101,6 +120,9 @@ export interface OfferSectionBanner extends BaseEntity {
   imageUrl: string;
   title?: string;
   description?: string;
+  buttonText: string;
+  buttonLink: string;
+  tenantId?: string;
 }
 
 export interface Slider extends BaseEntity {
@@ -136,6 +158,7 @@ export interface ContentCreateRequest {
   displayOrder?: number;
   startDate?: string;
   endDate?: string;
+  [key: string]: unknown; // Add index signature for compatibility
 }
 
 export interface HeroSliderCreateRequest extends ContentCreateRequest {
@@ -144,6 +167,7 @@ export interface HeroSliderCreateRequest extends ContentCreateRequest {
   linkUrl?: string;
   linkType?: LinkType;
   linkTargetId?: string;
+  [key: string]: unknown; // Add index signature for compatibility
 }
 
 export interface ContentStats {

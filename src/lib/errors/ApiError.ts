@@ -1,11 +1,11 @@
-import { ApiError as ApiErrorType, ErrorDetails } from "../types/api";
+import { ApiErrorResponse, ErrorDetails } from "../interfaces/error";
 
 export class ApiError extends Error {
   public status?: number;
   public code?: string;
   public details?: ErrorDetails;
 
-  constructor(error: ApiErrorType | string, status?: number) {
+  constructor(error: ApiErrorResponse | string, status?: number) {
     if (typeof error === "string") {
       super(error);
       this.status = status;
@@ -24,7 +24,7 @@ export class ApiError extends Error {
   }
 
   public static fromAxiosError(error: unknown): ApiError {
-    return new ApiError(error as ApiErrorType);
+    return new ApiError(error as ApiErrorResponse);
   }
 
   public getUserFriendlyMessage(): string {

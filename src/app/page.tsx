@@ -4,11 +4,14 @@ import Header from "../components/layout/public/Header";
 import Footer from "../components/layout/public/Footer";
 import HeroSliderComponent from "../components/HeroSlider";
 import CategoriesSection from "../components/CategoriesSection";
+import MenuItemsSection from "../components/MenuItemsSection";
 import RestaurantGrid from "../components/RestaurantGrid";
 import { useAuth } from "../contexts/authContext";
 import { useRestaurants } from "../hooks/useRestaurants";
 import { useHeroSliders } from "../hooks/useHeroSliders";
 import { useCategories } from "../hooks/useCategories";
+import { useMenuItems } from "../hooks/useMenuItems";
+import type { MenuItem } from "../lib/interfaces";
 
 export default function Home() {
   const { token } = useAuth();
@@ -23,9 +26,24 @@ export default function Home() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useCategories();
+  const {
+    menuItems: featuredMenuItems,
+    loading: menuItemsLoading,
+    error: menuItemsError,
+  } = useMenuItems({ featured: true, limit: 8 });
 
   const handleRetry = () => {
     window.location.reload();
+  };
+
+  const handleAddToCart = (item: MenuItem) => {
+    // TODO: Implement add to cart functionality
+    console.log("Add to cart:", item);
+  };
+
+  const handleAddToWishlist = (item: MenuItem) => {
+    // TODO: Implement add to wishlist functionality
+    console.log("Add to wishlist:", item);
   };
 
   return (
@@ -46,6 +64,20 @@ export default function Home() {
         categories={categories}
         loading={categoriesLoading}
         error={categoriesError}
+      />
+
+      {/* Featured Menu Items Section */}
+      <MenuItemsSection
+        title="Featured Dishes"
+        subtitle="Discover our chef's special recommendations"
+        menuItems={featuredMenuItems}
+        loading={menuItemsLoading}
+        error={menuItemsError}
+        showRestaurant={true}
+        showViewAll={true}
+        viewAllLink="/menu"
+        onAddToCart={handleAddToCart}
+        onAddToWishlist={handleAddToWishlist}
       />
 
       {/* Main Content */}

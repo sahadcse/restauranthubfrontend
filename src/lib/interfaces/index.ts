@@ -51,3 +51,11 @@ export type {
   ApiResponse as LegacyApiResponse,
   PaginatedResponse as LegacyPaginatedResponse,
 } from "./api";
+
+// New schema-based types (only the missing ones)
+export * from "./inventory";
+export * from "./analytics";
+export * from "./security";
+export * from "./email";
+export * from "./menu";
+export * from "./blog-extended";

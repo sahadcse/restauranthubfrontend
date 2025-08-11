@@ -1,5 +1,15 @@
-import { Restaurant, LocationData, Coordinates } from "../types/api";
+import { Restaurant, LocationData, Coordinates } from "../interfaces";
 
+// # General helpers
+
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// Utility functions
 export const formatRestaurantLocation = (restaurant: Restaurant): string => {
   if (typeof restaurant.location === "string") {
     return restaurant.location;
@@ -10,7 +20,7 @@ export const formatRestaurantLocation = (restaurant: Restaurant): string => {
   }
 
   if (restaurant.location && typeof restaurant.location === "object") {
-    const { latitude, longitude } = restaurant.location as Coordinates;
+    const { latitude, longitude } = restaurant.location;
     if (latitude && longitude) {
       return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
     }
@@ -60,3 +70,10 @@ export const slugify = (text: string): string => {
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
 };
+
+
+
+
+
+
+

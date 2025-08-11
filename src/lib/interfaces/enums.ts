@@ -1,0 +1,172 @@
+// Order & Business Enums
+export enum OrderStatus {
+  PENDING = "PENDING",
+  PREPARING = "PREPARING",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+  REFUNDED = "REFUNDED",
+}
+
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  AUTHORIZED = "AUTHORIZED",
+  PAID = "PAID",
+  FAILED = "FAILED",
+  REFUNDED = "REFUNDED",
+  PARTIALLY_REFUNDED = "PARTIALLY_REFUNDED",
+}
+
+export enum OrderType {
+  DELIVERY = "DELIVERY",
+  PICKUP = "PICKUP",
+  DINE_IN = "DINE_IN",
+}
+
+export enum DeliveryStatus {
+  PENDING = "PENDING",
+  ASSIGNED = "ASSIGNED",
+  IN_TRANSIT = "IN_TRANSIT",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+  FAILED = "FAILED",
+}
+
+export enum PaymentMethod {
+  CREDIT_CARD = "CREDIT_CARD",
+  DEBIT_CARD = "DEBIT_CARD",
+  PAYPAL = "PAYPAL",
+  STRIPE = "STRIPE",
+  CASH = "CASH",
+  BANK_TRANSFER = "BANK_TRANSFER",
+}
+
+export enum ReturnStatus {
+  NONE = "NONE",
+  REQUESTED = "REQUESTED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  COMPLETED = "COMPLETED",
+}
+
+export enum PriorityLevel {
+  LOW = "LOW",
+  NORMAL = "NORMAL",
+  HIGH = "HIGH",
+  URGENT = "URGENT",
+}
+
+// User & Account Enums
+export enum UserRole {
+  CUSTOMER = "CUSTOMER",
+  RESTAURANT_OWNER = "RESTAURANT_OWNER",
+  RESTAURANT_STAFF = "RESTAURANT_STAFF",
+  DRIVER = "DRIVER",
+  ADMIN = "ADMIN",
+  SUPER_ADMIN = "SUPER_ADMIN",
+}
+
+export enum AccountStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  SUSPENDED = "SUSPENDED",
+  PENDING_VERIFICATION = "PENDING_VERIFICATION",
+  DELETED = "DELETED",
+}
+
+// Feature Specific Enums
+export enum FeedbackType {
+  RESTAURANT = "RESTAURANT",
+  DELIVERY = "DELIVERY",
+  MENU_ITEM = "MENU_ITEM",
+  SERVICE = "SERVICE",
+}
+
+export enum NotificationChannel {
+  EMAIL = "EMAIL",
+  SMS = "SMS",
+  PUSH = "PUSH",
+  IN_APP = "IN_APP",
+}
+
+export enum NotificationType {
+  ORDER_STATUS = "ORDER_STATUS",
+  PROMOTION = "PROMOTION",
+  PASSWORD_RESET = "PASSWORD_RESET",
+  ACCOUNT_UPDATE = "ACCOUNT_UPDATE",
+  NEW_MESSAGE = "NEW_MESSAGE",
+  SYSTEM_ALERT = "SYSTEM_ALERT",
+}
+
+export enum PromotionType {
+  BANNER = "BANNER",
+  EMAIL = "EMAIL",
+  DISCOUNT = "DISCOUNT",
+  SOCIAL = "SOCIAL",
+}
+
+export enum WeightUnit {
+  GRAM = "GRAM",
+  KILOGRAM = "KILOGRAM",
+  OUNCE = "OUNCE",
+  POUND = "POUND",
+}
+
+export enum InventoryStatus {
+  IN_STOCK = "IN_STOCK",
+  LOW_STOCK = "LOW_STOCK",
+  OUT_OF_STOCK = "OUT_OF_STOCK",
+  DISCONTINUED = "DISCONTINUED",
+}
+
+export enum RecommendationReason {
+  POPULAR = "POPULAR",
+  FREQUENTLY_BOUGHT_TOGETHER = "FREQUENTLY_BOUGHT_TOGETHER",
+  AI_SUGGESTED = "AI_SUGGESTED",
+  MANUAL = "MANUAL",
+}
+
+export enum LoyaltyTransactionType {
+  EARNED = "EARNED",
+  REDEEMED = "REDEEMED",
+  EXPIRED = "EXPIRED",
+  ADJUSTED = "ADJUSTED",
+}
+
+export enum OrderCancellationStatus {
+  REQUESTED = "REQUESTED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
+export enum SliderLinkType {
+  RESTAURANT = "RESTAURANT",
+  MENU_ITEM = "MENU_ITEM",
+  CATEGORY = "CATEGORY",
+  CAMPAIGN = "CAMPAIGN",
+  EXTERNAL_URL = "EXTERNAL_URL",
+  NONE = "NONE",
+}
+
+export enum SupportTicketStatus {
+  OPEN = "OPEN",
+  IN_PROGRESS = "IN_PROGRESS",
+  RESOLVED = "RESOLVED",
+  CLOSED = "CLOSED",
+  WAITING_FOR_CUSTOMER = "WAITING_FOR_CUSTOMER",
+  WAITING_FOR_SUPPORT = "WAITING_FOR_SUPPORT",
+}
+
+export enum BlogPostStatus {
+  DRAFT = "DRAFT",
+  PUBLISHED = "PUBLISHED",
+  ARCHIVED = "ARCHIVED",
+}
+
+export enum EmailStatus {
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+  CANCELLED = "CANCELLED",
+}

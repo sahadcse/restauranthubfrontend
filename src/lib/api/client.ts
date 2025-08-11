@@ -4,7 +4,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import { ApiConfig, PaginatedResponse } from "../types/api";
+import { ApiConfig, PaginatedResponse } from "../interfaces";
 import { ApiError } from "../errors/ApiError";
 
 class ApiClient {

@@ -57,3 +57,32 @@ export interface TimestampedEntity {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface SearchParams {
+  query?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  rating?: number;
+  tags?: string[];
+  inStock?: boolean;
+}
+
+export interface FilterOptions {
+  categories: { id: string; name: string; count: number }[];
+  priceRange: { min: number; max: number };
+  ratings: number[];
+  tags: string[];
+}
+
+export interface ContactInfo {
+  email: string;
+  phone: string;
+}

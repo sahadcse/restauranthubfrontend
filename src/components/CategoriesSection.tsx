@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Category } from "../lib/api";
+import { Category } from "../lib/interfaces";
 
 interface CategoriesSectionProps {
   categories: Category[];

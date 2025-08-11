@@ -5,7 +5,7 @@ import { useCart } from "../../../contexts/cartContext";
 import { useAuth } from "../../../contexts/authContext";
 import Image from "next/image";
 import Link from "next/link";
-import { createOrder } from "../../../lib/api";
+import { createOrder } from "../../../lib/api/orders";
 import { FiX } from "react-icons/fi";
 
 interface CartModalProps {

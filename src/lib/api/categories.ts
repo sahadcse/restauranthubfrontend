@@ -1,22 +1,34 @@
 import { apiClient } from "./client";
-import { Category, ApiErrorResponse } from "../interfaces";
+import type { Category } from "../interfaces";
 import { demoCategories } from "../../data";
 
 export const categoriesApi = {
   // Get all categories
   getAll: async (): Promise<Category[]> => {
     try {
-      return await apiClient.getPaginated<Category>("/restaurants/categories");
-    } catch (error) {
-      const apiError = error as ApiErrorResponse;
+      const result = await apiClient.getPaginated<Category>(
+        "/restaurants/categories"
+      );
 
-      // Only return demo data if explicitly needed for development
+      // If we get an empty result in development, use demo data
       if (
         process.env.NODE_ENV === "development" &&
-        apiError?.response?.status === 404
+        (!result || result.length === 0)
       ) {
         console.info(
-          "Categories endpoint not found, using demo data for development"
+          "API returned empty results, using demo data for development"
+        );
+        return demoCategories;
+      }
+
+      return result;
+    } catch (error) {
+    //   const apiError = error as ApiErrorResponse;
+
+      // Always return demo data in development if API fails
+      if (process.env.NODE_ENV === "development") {
+        console.info(
+          "Categories endpoint failed, using demo data for development"
         );
         return demoCategories;
       }

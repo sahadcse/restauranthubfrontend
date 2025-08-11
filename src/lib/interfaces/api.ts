@@ -1,13 +1,16 @@
 // Consolidated API interfaces - main export for backward compatibility
 
-// Re-export all interfaces from domain-specific files (excluding conflicts)
+// Re-export all enums first to avoid conflicts
+export * from "./enums";
+
+// Re-export all interfaces from domain-specific files
 export * from "./auth";
 export * from "./restaurant";
 export * from "./order";
 export * from "./content";
-
-// Re-export from common and error with explicit handling of conflicts
 export * from "./common";
+
+// Re-export from error with explicit naming to avoid conflicts
 export type {
   ApiErrorResponse,
   ValidationError,

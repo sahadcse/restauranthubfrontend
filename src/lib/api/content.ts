@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import { HeroSlider, ApiErrorResponse } from "../interfaces";
+import type { HeroSlider } from "../interfaces";
 import { demoHeroSliders } from "../../data";
 
 export const contentApi = {
@@ -12,28 +12,36 @@ export const contentApi = {
         >("/content/hero-sliders");
 
         // Handle different response formats
+        let result: HeroSlider[] = [];
         if (Array.isArray(response)) {
-          return response;
+          result = response;
         } else if (
           response &&
           typeof response === "object" &&
           "data" in response
         ) {
-          return response.data;
-        } else {
-          console.warn("Unexpected hero sliders data format:", response);
-          return [];
+          result = response.data;
         }
-      } catch (error) {
-        const apiError = error as ApiErrorResponse;
 
-        // Only return demo data if explicitly needed for development
+        // If we get an empty result in development, use demo data
         if (
           process.env.NODE_ENV === "development" &&
-          apiError?.response?.status === 404
+          (!result || result.length === 0)
         ) {
           console.info(
-            "Hero sliders endpoint not found, using demo data for development"
+            "API returned empty results, using demo data for development"
+          );
+          return demoHeroSliders;
+        }
+
+        return result;
+      } catch (error) {
+        // const apiError = error as ApiErrorResponse;
+
+        // Always return demo data in development if API fails
+        if (process.env.NODE_ENV === "development") {
+          console.info(
+            "Hero sliders endpoint failed, using demo data for development"
           );
           return demoHeroSliders;
         }

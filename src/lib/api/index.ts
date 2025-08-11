@@ -1,13 +1,13 @@
 // Main API exports and functions
 export * from "./client";
 export * from "./restaurants";
-// export * from "./auth";
-// export * from "./orders";
-// export * from "./content";
-// export * from "./categories";
+export * from "./auth";
+export * from "./orders";
+export * from "./content";
+export * from "./categories";
 
 // Re-export types (excluding ApiError to avoid conflict)
-export * from "../types/api";
+export * from "../interfaces";
 
 // Explicitly re-export ApiError from errors to resolve ambiguity
 export {

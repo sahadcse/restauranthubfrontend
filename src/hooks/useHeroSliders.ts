@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getHeroSliders, HeroSlider } from "../lib/api";
+import { getHeroSliders, HeroSlider } from "../lib/api/";
 
 export function useHeroSliders() {
   const [heroSliders, setHeroSliders] = useState<HeroSlider[]>([]);

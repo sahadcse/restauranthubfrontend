@@ -5,7 +5,7 @@ import { useAuth } from "../../../contexts/authContext";
 import { useRouter } from "next/navigation";
 import { authApi } from "../../../lib/api/auth";
 import { UserRegistrationData } from "../../../lib/interfaces";
-import { UserRole } from "../../../lib/interfaces/enums";
+// import { UserRole } from "../../../lib/interfaces/enums";
 import { redirectManager } from "../../../lib/services/redirectManager";
 import Link from "next/link";
 import Image from "next/image";

@@ -1,5 +1,10 @@
 import { apiClient } from "./client";
-import { UserRegistrationData, RegisterResponse } from "../interfaces";
+import {
+  UserRegistrationData,
+  RegisterResponse,
+  EmailVerificationResponse,
+  ResendVerificationResponse,
+} from "../interfaces";
 
 export const authApi = {
   // Register user (customer or restaurant owner)
@@ -13,6 +18,23 @@ export const authApi = {
         : "/users/register/restaurant-owner";
 
     return apiClient.post<RegisterResponse>(endpoint, userData);
+  },
+
+  async verifyEmail(token: string): Promise<EmailVerificationResponse> {
+    return apiClient.get<EmailVerificationResponse>(
+      `/users/verify-email/${token}`
+    );
+  },
+
+  async resendVerificationEmail(
+    email: string
+  ): Promise<ResendVerificationResponse> {
+    return apiClient.post<ResendVerificationResponse>(
+      "/users/resend-verification",
+      {
+        email,
+      }
+    );
   },
 };
 

@@ -1,8 +1,9 @@
 "use client";
 import Breadcrumb, { BreadcrumbItem } from "../../ui/Breadcrumb";
-import WishlistTable from "./WishlistTable"; // Remove WishlistItem import if not needed directly
+import WishlistTable from "./WishlistTable";
 import { useCart } from "../../../contexts/cartContext";
-import { useWishlist, WishlistItem } from "../../../contexts/wishlistContext"; // Keep WishlistItem import here
+import { useWishlist, WishlistItem } from "../../../contexts/wishlistContext";
+import { SimpleCartItem } from "../../../lib/interfaces/cart";
 
 const breadcrumbItems: BreadcrumbItem[] = [
   { label: "Home", href: "/" },
@@ -17,7 +18,7 @@ const WishlistPage = () => {
   // Remove from wishlist after adding to cart
   const handleAddToCart = (item: WishlistItem) => {
     // Transform WishlistItem to match the MenuItem interface for cart
-    const cartItem = {
+    const cartItem: SimpleCartItem = {
       id: item.id,
       restaurant_id: item.restaurant_id, // Use restaurant_id from wishlist item
       name: item.name,

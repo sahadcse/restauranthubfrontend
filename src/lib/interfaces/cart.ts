@@ -16,6 +16,17 @@ export interface CartItem {
   addedAt: Date;
 }
 
+// Add a simplified cart item for local cart operations
+export interface SimpleCartItem {
+  id: number | string;
+  restaurant_id?: number;
+  name: string;
+  price: number;
+  image_url?: string;
+  description?: string;
+  quantity: number;
+}
+
 export interface AddToCartRequest {
   menuItemId: string;
   variantId?: string;

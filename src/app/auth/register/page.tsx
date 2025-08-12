@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../../../contexts/authContext";
+// import { useAuth } from "../../../contexts/authContext";
 import { useRouter } from "next/navigation";
 import { authApi } from "../../../lib/api/auth";
 import { UserRegistrationData } from "../../../lib/interfaces";
 // import { UserRole } from "../../../lib/interfaces/enums";
-import { redirectManager } from "../../../lib/services/redirectManager";
+// import { redirectManager } from "../../../lib/services/redirectManager";
 import { validationService } from "../../../lib/services/validationService";
 import { useFormValidation } from "../../../hooks/useFormValidation";
 import Link from "next/link";
@@ -48,7 +48,7 @@ export default function Register() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login } = useAuth();
+  // const { login } = useAuth();
   const router = useRouter();
 
   const initialFormData: UserRegistrationData = {
@@ -71,13 +71,26 @@ export default function Register() {
       privacyConsent: agreeToTerms,
     };
 
-    const response = await authApi.register(userData, role);
-    login(response.token);
+    try {
+      const response = await authApi.register(userData, role);
 
-    const redirectPath = redirectManager.getPostRegistrationPath(
-      response.user.role
-    );
-    router.push(redirectPath);
+      console.log("Registration response:", response);
+
+      // Don't log in the user immediately - they need to verify their email first
+      // const { user, token } = response.data;
+      // login(token);
+
+      // Clear any existing errors
+      setError("");
+
+      // Redirect to email verification page with user's email
+      router.push(
+        `/auth/verify-email?email=${encodeURIComponent(formData.email)}`
+      );
+    } catch (error) {
+      console.error("Registration API error:", error);
+      throw error; // Re-throw to be handled by the form validation hook
+    }
   };
 
   const {
@@ -97,17 +110,25 @@ export default function Register() {
 
     try {
       const success = await validateAndSubmit(e);
-      if (!success && !agreeToTerms) {
-        // Error already set in handleSubmit
+      if (!success) {
+        // Validation failed or terms not agreed
         return;
       }
+      // If we reach here, registration was successful and redirect should have happened
     } catch (error) {
       console.error("Registration error:", error);
       let errorMessage = "Registration failed. Please try again.";
 
       if (error instanceof ApiError) {
-        // Use the specific error message from the backend
-        errorMessage = error.message;
+        // Check if it's a validation error with details
+        if (error.details?.errors && Array.isArray(error.details.errors)) {
+          // Extract the first validation error message
+          const validationError = error.details.errors[0];
+          errorMessage = validationError.message || error.message;
+        } else {
+          // Use the main error message (e.g., "Email already in use")
+          errorMessage = error.message;
+        }
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }

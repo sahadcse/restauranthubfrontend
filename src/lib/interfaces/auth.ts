@@ -53,14 +53,24 @@ export interface LoginCredentials {
 }
 
 export interface RegisterResponse {
-  token: string;
-  user: User;
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    token: string;
+    expiresAt: string;
+  };
 }
 
 export interface LoginResponse {
-  token: string;
-  user: User;
-  refreshToken?: string;
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    token: string;
+    refreshToken?: string;
+    expiresAt: string;
+  };
 }
 
 export interface AuthContext {
@@ -94,6 +104,19 @@ export interface PasswordChange {
 export interface EmailVerification {
   token: string;
   [key: string]: unknown; // Add index signature for compatibility
+}
+
+export interface EmailVerificationResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    user?: User;
+  };
+}
+
+export interface ResendVerificationResponse {
+  success: boolean;
+  message: string;
 }
 
 // export type RegistrationRole =

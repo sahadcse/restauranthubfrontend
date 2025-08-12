@@ -1,22 +1,8 @@
 "use client";
 import Image from "next/image";
 import { FiHeart, FiEye, FiRepeat, FiShoppingCart } from "react-icons/fi";
+import { ProductCardProps } from "../../../lib/interfaces"; // Adjust the import path as necessary
 
-interface ProductCardProps {
-  id: number;
-  name: string;
-  image: string;
-  price: number | string;
-  oldPrice?: string;
-  description?: string;
-  category?: string;
-  badge?: string;
-  rating?: number;
-  extraInfo?: string;
-  inWishlist?: boolean;
-  onWishlistToggle?: () => void;
-  onAddToCart?: () => void;
-}
 
 const getBadgeColor = (badge?: string) => {
   if (badge === "SALE") return "bg-red-500 text-white";

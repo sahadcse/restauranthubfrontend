@@ -64,6 +64,7 @@ export interface Tag {
   slug: string;
   description?: string;
   type: string;
+  color: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -85,4 +86,21 @@ export interface TaxRate {
   tenantId: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+
+export interface ProductCardProps {
+  id: number;
+  name: string;
+  image: string;
+  price: number | string;
+  oldPrice?: string;
+  description?: string;
+  category?: string;
+  badge?: string;
+  rating?: number;
+  extraInfo?: string;
+  inWishlist?: boolean;
+  onWishlistToggle?: () => void;
+  onAddToCart?: () => void;
 }

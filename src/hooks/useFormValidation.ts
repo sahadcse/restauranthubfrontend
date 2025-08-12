@@ -48,10 +48,11 @@ export function useFormValidation<T extends Record<string, unknown>>({
       setIsSubmitting(true);
       try {
         await onSubmit(formData);
+        console.log(formData)
         return true;
       } catch (error) {
         console.error("Form submission error:", error);
-        return false;
+        throw error; // Re-throw the error so it can be caught by the component
       } finally {
         setIsSubmitting(false);
       }

@@ -30,8 +30,12 @@ class RedirectManager {
     return this.config[scenario] || this.config.fallback;
   }
 
-  getRoleDefaultPath(role: UserRole): string {
-    return this.config.roleDefaults[role] || this.config.fallback;
+  getRoleDefaultPath(role: UserRole | string): string {
+    // Handle both enum values and string values from backend
+    const roleKey = typeof role === "string" ? (role as UserRole) : role;
+    const path = this.config.roleDefaults[roleKey] || this.config.fallback;
+    console.log(`Getting default path for role ${role}:`, path);
+    return path;
   }
 
   shouldRedirectUser(
@@ -58,12 +62,14 @@ class RedirectManager {
   }
 
   // Utility method for registration redirects
-  getPostRegistrationPath(role: UserRole): string {
-    return this.getRoleDefaultPath(role);
+  getPostRegistrationPath(role: UserRole | string): string {
+    const path = this.getRoleDefaultPath(role);
+    console.log(`Post-registration redirect for role ${role}:`, path);
+    return path;
   }
 
   // Utility method for login redirects
-  getPostLoginPath(role: UserRole): string {
+  getPostLoginPath(role: UserRole | string): string {
     return this.getRoleDefaultPath(role);
   }
 }

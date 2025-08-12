@@ -1,12 +1,13 @@
 // frontend/lib/cartContext.tsx
 // This file provides a context for managing the shopping cart in the application.
-// It includes functionality to add, remove, and clear items in the cart, 
+// It includes functionality to add, remove, and clear items in the cart,
 // as well as a custom hook for accessing the cart context.
 
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { MenuItem, CartItem } from "../lib/interfaces";
+import {  CartItem } from "../lib/interfaces";
+import { SimpleCartItem } from "../lib/interfaces/cart";
 
 // Interfaces
 // interface CartItem extends MenuItem {
@@ -15,7 +16,7 @@ import { MenuItem, CartItem } from "../lib/interfaces";
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: MenuItem & { quantity?: number }) => void;
+  addToCart: (item: SimpleCartItem) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
 }
@@ -28,7 +29,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // Add item to cart
-  const addToCart = (item: MenuItem & { quantity?: number }) => {
+  const addToCart = (item: SimpleCartItem) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {

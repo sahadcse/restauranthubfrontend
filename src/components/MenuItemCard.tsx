@@ -4,11 +4,12 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MenuItem } from "../lib/interfaces";
+import { SimpleCartItem } from "../lib/interfaces/cart";
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
   showRestaurant?: boolean;
-  onAddToCart?: (item: MenuItem) => void;
+  onAddToCart?: (item: SimpleCartItem) => void;
   onAddToWishlist?: (item: MenuItem) => void;
 }
 
@@ -49,6 +50,23 @@ export default function MenuItemCard({
         return "Discontinued";
       default:
         return status;
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (onAddToCart) {
+      const simpleCartItem: SimpleCartItem = {
+        id: menuItem.id,
+        restaurant_id: menuItem.restaurantId
+          ? parseInt(menuItem.restaurantId)
+          : undefined,
+        name: menuItem.title,
+        price: menuItem.finalPrice,
+        image_url: primaryImage,
+        description: menuItem.description,
+        quantity: 1,
+      };
+      onAddToCart(simpleCartItem);
     }
   };
 
@@ -214,7 +232,7 @@ export default function MenuItemCard({
 
           {onAddToCart && menuItem.stockStatus === "IN_STOCK" && (
             <button
-              onClick={() => onAddToCart(menuItem)}
+              onClick={handleAddToCart}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center"
             >
               <svg

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ProductCard from "../features/products/ProductCard";
 import { useWishlist, WishlistItem } from "../../contexts/wishlistContext";
 import { useCart } from "../../contexts/cartContext";
+import { SimpleCartItem } from "../../lib/interfaces/cart";
 
 interface Product {
   id: number;
@@ -47,7 +48,7 @@ const NewArrivals: React.FC = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    const cartItem = {
+    const cartItem: SimpleCartItem = {
       id: product.id,
       restaurant_id: 0, // Assuming 0 is a valid placeholder or default
       name: product.name,

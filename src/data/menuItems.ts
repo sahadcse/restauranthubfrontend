@@ -1,4 +1,7 @@
 import { MenuItem } from "../lib/interfaces";
+// import { Tag } from "../lib/interfaces";
+import { InventoryStatus, WeightUnit } from "../lib/interfaces/enums";
+
 
 export const demoMenuItems: MenuItem[] = [
   {
@@ -10,7 +13,7 @@ export const demoMenuItems: MenuItem[] = [
     finalPrice: 24.99,
     mrp: 29.99,
     discountPercentage: 16.67,
-    stockStatus: "IN_STOCK",
+    stockStatus: InventoryStatus.IN_STOCK,
     rating: 4.8,
     ratingCount: 127,
     createdAt: new Date().toISOString(),
@@ -34,7 +37,7 @@ export const demoMenuItems: MenuItem[] = [
     },
     tenantId: "main",
     color: "#FF6B6B",
-    weightUnit: "GRAM",
+    weightUnit: WeightUnit.GRAM,
     isVisible: true,
     searchKeywords: {
       keywords: ["salmon", "fish", "grilled", "healthy", "protein"],
@@ -98,7 +101,7 @@ export const demoMenuItems: MenuItem[] = [
     finalPrice: 16.99,
     mrp: 18.99,
     discountPercentage: 10.53,
-    stockStatus: "IN_STOCK",
+    stockStatus: InventoryStatus.IN_STOCK,
     rating: 4.6,
     ratingCount: 289,
     createdAt: new Date().toISOString(),
@@ -122,7 +125,7 @@ export const demoMenuItems: MenuItem[] = [
     },
     tenantId: "main",
     color: "#4CAF50",
-    weightUnit: "PIECE",
+    weightUnit: WeightUnit.GRAM,
     isVisible: true,
     searchKeywords: {
       keywords: ["pizza", "margherita", "italian", "cheese", "tomato"],
@@ -176,7 +179,7 @@ export const demoMenuItems: MenuItem[] = [
     finalPrice: 12.99,
     mrp: 14.99,
     discountPercentage: 13.34,
-    stockStatus: "IN_STOCK",
+    stockStatus: InventoryStatus.IN_STOCK,
     rating: 4.4,
     ratingCount: 156,
     createdAt: new Date().toISOString(),
@@ -200,7 +203,7 @@ export const demoMenuItems: MenuItem[] = [
     },
     tenantId: "main",
     color: "#8BC34A",
-    weightUnit: "GRAM",
+    weightUnit: WeightUnit.GRAM,
     isVisible: true,
     searchKeywords: {
       keywords: ["salad", "caesar", "lettuce", "healthy", "fresh"],
@@ -236,7 +239,7 @@ export const demoMenuItems: MenuItem[] = [
     finalPrice: 8.99,
     mrp: 9.99,
     discountPercentage: 10.01,
-    stockStatus: "LOW_STOCK",
+    stockStatus: InventoryStatus.LOW_STOCK,
     rating: 4.9,
     ratingCount: 203,
     createdAt: new Date().toISOString(),
@@ -260,7 +263,7 @@ export const demoMenuItems: MenuItem[] = [
     },
     tenantId: "main",
     color: "#795548",
-    weightUnit: "PIECE",
+    weightUnit: WeightUnit.GRAM,
     isVisible: true,
     searchKeywords: {
       keywords: ["brownie", "chocolate", "dessert", "sweet", "warm"],
@@ -296,7 +299,7 @@ export const demoMenuItems: MenuItem[] = [
     finalPrice: 18.99,
     mrp: 21.99,
     discountPercentage: 13.64,
-    stockStatus: "OUT_OF_STOCK",
+    stockStatus: InventoryStatus.OUT_OF_STOCK,
     rating: 4.7,
     ratingCount: 89,
     createdAt: new Date().toISOString(),
@@ -320,7 +323,7 @@ export const demoMenuItems: MenuItem[] = [
     },
     tenantId: "main",
     color: "#FF9800",
-    weightUnit: "PIECE",
+    weightUnit: WeightUnit.GRAM,
     isVisible: true,
     searchKeywords: {
       keywords: ["burger", "beef", "deluxe", "premium", "cheese"],
@@ -356,7 +359,7 @@ export const demoMenuItems: MenuItem[] = [
     finalPrice: 5.99,
     mrp: 6.99,
     discountPercentage: 14.31,
-    stockStatus: "IN_STOCK",
+    stockStatus: InventoryStatus.IN_STOCK,
     rating: 4.3,
     ratingCount: 67,
     createdAt: new Date().toISOString(),
@@ -380,7 +383,7 @@ export const demoMenuItems: MenuItem[] = [
     },
     tenantId: "main",
     color: "#FF9800",
-    weightUnit: "ML",
+    weightUnit: WeightUnit.POUND,
     isVisible: true,
     searchKeywords: {
       keywords: ["juice", "orange", "fresh", "vitamin", "healthy"],

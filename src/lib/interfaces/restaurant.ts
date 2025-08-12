@@ -5,7 +5,6 @@ import { InventoryStatus, WeightUnit } from "./enums";
 import { Tag, TaxRate } from "./menu";
 
 export interface Restaurant extends BaseEntity {
-  // id: number;
   name: string;
   location: LocationData;
   logo_url?: string;

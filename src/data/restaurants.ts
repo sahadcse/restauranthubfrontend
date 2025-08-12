@@ -2,7 +2,7 @@ import { Restaurant } from "../lib/interfaces";
 
 export const demoRestaurants: Restaurant[] = [
   {
-    id: 1,
+    id: "1",
     name: "The Gourmet Corner",
     location: "Downtown City Center",
     logo_url: "/images/restaurants/gourmet-corner.jpg",
@@ -18,9 +18,11 @@ export const demoRestaurants: Restaurant[] = [
     isActive: true,
     rating: 4.8,
     reviewCount: 256,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: 2,
+    id: "2",
     name: "Pizza Palace",
     location: {
       latitude: 40.7589,
@@ -39,9 +41,11 @@ export const demoRestaurants: Restaurant[] = [
     isActive: true,
     rating: 4.6,
     reviewCount: 189,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: 3,
+    id: "3",
     name: "Sushi Zen",
     location: "Upper East Side",
     logo_url: "/images/restaurants/sushi-zen.jpg",
@@ -57,5 +61,7 @@ export const demoRestaurants: Restaurant[] = [
     isActive: false,
     rating: 4.9,
     reviewCount: 342,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];

@@ -1,4 +1,5 @@
 import { HeroSlider } from "../lib/interfaces";
+import {SliderLinkType} from "../lib/interfaces/enums";
 
 export const demoHeroSliders: HeroSlider[] = [
   {
@@ -10,7 +11,7 @@ export const demoHeroSliders: HeroSlider[] = [
     price: 20.0,
     buttonText: "Shop Now",
     linkUrl: "/categories/vegetables",
-    linkType: "RESTAURANT",
+    linkType: SliderLinkType.RESTAURANT,
     linkTargetId: "vegetables",
     displayOrder: 1,
     isActive: true,
@@ -28,7 +29,7 @@ export const demoHeroSliders: HeroSlider[] = [
     price: 8.5,
     buttonText: "Order Fresh",
     linkUrl: "/categories/bakery",
-    linkType: "RESTAURANT",
+    linkType: SliderLinkType.RESTAURANT,
     linkTargetId: "bakery",
     displayOrder: 2,
     isActive: true,
@@ -46,7 +47,7 @@ export const demoHeroSliders: HeroSlider[] = [
     price: 15.99,
     buttonText: "Explore Fruits",
     linkUrl: "/categories/fruits",
-    linkType: "RESTAURANT",
+    linkType: SliderLinkType.RESTAURANT,
     linkTargetId: "fruits",
     displayOrder: 3,
     isActive: true,

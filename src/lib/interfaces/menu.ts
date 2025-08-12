@@ -61,12 +61,13 @@ export interface Allergen {
 export interface Tag {
   id: string;
   name: string;
-  slug: string;
+  slug?: string;
   description?: string;
-  type: string;
+  type?: string;
   color: string;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface MenuItemAllergen {

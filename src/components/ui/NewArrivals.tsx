@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import ProductCard from "../features/products/ProductCard";
 import { useWishlist, WishlistItem } from "../../contexts/wishlistContext";
 import { useCart } from "../../contexts/cartContext";
-import { SimpleCartItem } from "../../lib/interfaces/cart";
 
 interface Product {
   id: number;
@@ -20,7 +19,7 @@ interface Product {
 const NewArrivals: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const { addToWishlist, removeFromWishlist, isItemInWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const { addLegacyToCart } = useCart();
 
   useEffect(() => {
     import("@/src/data/newArrivals.json")
@@ -48,7 +47,7 @@ const NewArrivals: React.FC = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    const cartItem: SimpleCartItem = {
+    const cartItem = {
       id: product.id,
       restaurant_id: 0, // Assuming 0 is a valid placeholder or default
       name: product.name,
@@ -60,7 +59,7 @@ const NewArrivals: React.FC = () => {
       description: undefined,
       quantity: 1,
     };
-    addToCart(cartItem);
+    addLegacyToCart(cartItem);
   };
 
   return (

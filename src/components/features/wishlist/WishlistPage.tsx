@@ -3,7 +3,7 @@ import Breadcrumb, { BreadcrumbItem } from "../../ui/Breadcrumb";
 import WishlistTable from "./WishlistTable";
 import { useCart } from "../../../contexts/cartContext";
 import { useWishlist, WishlistItem } from "../../../contexts/wishlistContext";
-import { SimpleCartItem } from "../../../lib/interfaces/cart";
+import { transformWishlistToMenuItem } from "../../../lib/utils/typeTransforms";
 
 const breadcrumbItems: BreadcrumbItem[] = [
   { label: "Home", href: "/" },
@@ -11,25 +11,13 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 const WishlistPage = () => {
-  // Use global wishlist state and actions
   const { wishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
 
-  // Remove from wishlist after adding to cart
   const handleAddToCart = (item: WishlistItem) => {
-    // Transform WishlistItem to match the MenuItem interface for cart
-    const cartItem: SimpleCartItem = {
-      id: item.id,
-      restaurant_id: item.restaurant_id, // Use restaurant_id from wishlist item
-      name: item.name,
-      price: item.price, // Use numeric price directly
-      image_url: item.image_url, // Map image_url
-      description: item.description, // Map description
-      quantity: 1,
-    };
-
-    addToCart(cartItem); // Add to cart with quantity 1
-    removeFromWishlist(item.id); // Remove from global wishlist
+    const menuItem = transformWishlistToMenuItem(item);
+    addToCart({ ...menuItem, quantity: 1 });
+    removeFromWishlist(item.id);
   };
 
   const handleDelete = (id: number) => {

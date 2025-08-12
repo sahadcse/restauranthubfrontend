@@ -6,8 +6,11 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import {  CartItem } from "../lib/interfaces";
-import { SimpleCartItem } from "../lib/interfaces/cart";
+import { MenuItem, CartItem } from "../lib/interfaces";
+import {
+  transformLegacyToMenuItem,
+  LegacyCartItem,
+} from "../lib/utils/typeTransforms";
 
 // Interfaces
 // interface CartItem extends MenuItem {
@@ -16,7 +19,8 @@ import { SimpleCartItem } from "../lib/interfaces/cart";
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: SimpleCartItem) => void;
+  addToCart: (item: MenuItem & { quantity?: number }) => void;
+  addLegacyToCart: (item: LegacyCartItem) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
 }
@@ -29,7 +33,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // Add item to cart
-  const addToCart = (item: SimpleCartItem) => {
+  const addToCart = (item: MenuItem & { quantity?: number }) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
@@ -41,6 +45,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       return [...prev, { ...item, quantity: item.quantity ?? 1 }] as CartItem[]; // Default to 1 if no quantity provided
     });
+  };
+
+  // Add legacy item to cart (for backward compatibility)
+  const addLegacyToCart = (item: LegacyCartItem) => {
+    const menuItem = transformLegacyToMenuItem(item);
+    addToCart({ ...menuItem, quantity: item.quantity });
   };
 
   // Remove item from cart
@@ -55,7 +65,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, clearCart }}
+      value={{ cart, addToCart, addLegacyToCart, removeFromCart, clearCart }}
     >
       {children}
     </CartContext.Provider>

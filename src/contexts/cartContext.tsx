@@ -6,17 +6,17 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { MenuItem } from "../lib/api";
+import { MenuItem, CartItem } from "../lib/interfaces";
 
 // Interfaces
-interface CartItem extends MenuItem {
-  quantity: number;
-}
+// interface CartItem extends MenuItem {
+//   quantity: number;
+// }
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: MenuItem & { quantity?: number }) => void;
-  removeFromCart: (id: number) => void;
+  removeFromCart: (id: string) => void;
   clearCart: () => void;
 }
 
@@ -38,12 +38,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             : i
         );
       }
-      return [...prev, { ...item, quantity: item.quantity ?? 1 }]; // Default to 1 if no quantity provided
+      return [...prev, { ...item, quantity: item.quantity ?? 1 }] as CartItem[]; // Default to 1 if no quantity provided
     });
   };
 
   // Remove item from cart
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 

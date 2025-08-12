@@ -36,15 +36,15 @@ export default function CartPage() {
     { label: "Cart" },
   ];
 
-  // Calculate totals
+  // Calculate totals - use finalPrice instead of price
   const subtotal = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
+    (sum, item) => sum + item.finalPrice * item.quantity,
     0
   );
   const deliveryCharges = subtotal > 50 ? 0 : 5.0; // Free delivery over $50
   const totalAmount = subtotal + deliveryCharges - couponDiscount;
 
-  const updateQuantity = (id: number, delta: number) => {
+  const updateQuantity = (id: string, delta: number) => {
     const item = cart.find((i) => i.id === id);
     if (!item) return;
 
@@ -153,10 +153,10 @@ export default function CartPage() {
                     >
                       {/* Product Image */}
                       <div className="relative w-24 h-24 flex-shrink-0">
-                        {item.image_url ? (
+                        {item.images?.[0]?.url || item.image_url ? (
                           <Image
-                            src={item.image_url}
-                            alt={item.name}
+                            src={item.images?.[0]?.url || item.image_url || ''}
+                            alt={item.title}
                             fill
                             className="object-cover rounded-md"
                           />
@@ -172,24 +172,24 @@ export default function CartPage() {
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-medium text-gray-900 mb-1">
-                          {item.name}
+                          {item.title}
                         </h3>
                         <p className="text-sm text-gray-500 mb-2">
                           {item.description}
                         </p>
                         <div className="flex items-center space-x-2 mb-3">
                           <span className="text-yellow-400">★★★★★</span>
-                          <span className="text-sm text-gray-500">(4.5)</span>
+                          <span className="text-sm text-gray-500">({item.rating})</span>
                         </div>
 
                         {/* Price and Controls */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             <div className="text-lg font-bold text-teal-600">
-                              ${Number(item.price).toFixed(2)}
+                              ${item.finalPrice.toFixed(2)}
                             </div>
                             <div className="text-sm text-gray-500 line-through">
-                              ${(Number(item.price) * 1.2).toFixed(2)}
+                              ${item.mrp.toFixed(2)}
                             </div>
                           </div>
 

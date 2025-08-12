@@ -26,7 +26,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   }, [isOpen]);
 
   const subTotal = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
+    (sum, item) => sum + item.finalPrice * item.quantity,
     0
   );
   const vatRate = 0.2;
@@ -44,11 +44,23 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
     setIsCheckingOut(true);
     try {
-      const restaurantId = cart[0].restaurant_id;
-      const items = cart.map((item) => ({
-        menu_item_id: item.id,
-        quantity: item.quantity,
-      }));
+      // Convert string restaurantId to number for API compatibility
+      const restaurantId = parseInt(cart[0].restaurantId, 10);
+      if (isNaN(restaurantId)) {
+        throw new Error("Invalid restaurant ID");
+      }
+
+      const items = cart.map((item) => {
+        const menuItemId = parseInt(item.id, 10);
+        if (isNaN(menuItemId)) {
+          throw new Error(`Invalid menu item ID: ${item.id}`);
+        }
+        return {
+          menu_item_id: menuItemId,
+          quantity: item.quantity,
+        };
+      });
+      
       await createOrder(restaurantId, items, subTotal, token);
       setOrderSuccess(true);
       clearCart();
@@ -60,7 +72,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     }
   };
 
-  const updateQuantity = (id: number, delta: number) => {
+  const updateQuantity = (id: string, delta: number) => {
     const item = cart.find((i) => i.id === id);
     if (!item) return;
     const newQuantity = item.quantity + delta;
@@ -130,10 +142,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   >
                     <FiX />
                   </button>
-                  {item.image_url ? (
+                  {item.images?.[0]?.url || item.image_url ? (
                     <Image
-                      src={item.image_url}
-                      alt={item.name}
+                      src={item.images?.[0]?.url || item.image_url || ''}
+                      alt={item.title}
                       width={64}
                       height={64}
                       className="w-16 h-16 object-cover rounded-md flex-shrink-0"
@@ -146,10 +158,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="text-base font-medium text-black leading-tight">
-                        {item.name}
+                        {item.title}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        ${Number(item.price).toFixed(2)} x {item.quantity}
+                        ${item.finalPrice.toFixed(2)} x {item.quantity}
                       </p>
                     </div>
                     <div className="flex items-center border border-gray-200 rounded w-fit mt-1">

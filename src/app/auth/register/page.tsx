@@ -7,6 +7,8 @@ import { authApi } from "../../../lib/api/auth";
 import { UserRegistrationData } from "../../../lib/interfaces";
 // import { UserRole } from "../../../lib/interfaces/enums";
 import { redirectManager } from "../../../lib/services/redirectManager";
+import { validationService } from "../../../lib/services/validationService";
+import { useFormValidation } from "../../../hooks/useFormValidation";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "../../../components/layout/public/Header";
@@ -40,106 +42,77 @@ const getSocialIcon = (icon: string) => {
   return iconMap[icon as keyof typeof iconMap] || null;
 };
 
-// Form validation utility
-const validateRegistrationForm = (formData: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  password: string;
-  privacyConsent: boolean;
-}) => {
-  const errors: Record<string, string> = {};
-
-  if (!formData.firstName.trim()) errors.firstName = "First name is required";
-  if (!formData.lastName.trim()) errors.lastName = "Last name is required";
-  if (!formData.email.trim()) errors.email = "Email is required";
-  else if (!/\S+@\S+\.\S+/.test(formData.email))
-    errors.email = "Email is invalid";
-  if (!formData.phoneNumber.trim())
-    errors.phoneNumber = "Phone number is required";
-  if (!formData.password.trim()) errors.password = "Password is required";
-  else if (formData.password.length < 8)
-    errors.password = "Password must be at least 8 characters";
-
-  return errors;
-};
-
 export default function Register() {
-  const [formData, setFormData] = useState({
+  const [role] = useState<"customer" | "restaurant-owner">("customer");
+  const [error, setError] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const initialFormData: UserRegistrationData = {
     email: "",
     password: "",
     firstName: "",
     lastName: "",
     phoneNumber: "",
     privacyConsent: false,
-  });
-  const [role] = useState<"customer" | "restaurant-owner">("customer");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  const { login } = useAuth();
-  const router = useRouter();
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear field error when user starts typing
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => ({ ...prev, [field]: "" }));
-    }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    console.log("Registering user:", formData);
-    e.preventDefault();
-    setError("");
-    setFieldErrors({});
-
-    const validationErrors = validateRegistrationForm(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setFieldErrors(validationErrors);
-      return;
-    }
-
+  const handleSubmit = async (formData: UserRegistrationData) => {
     if (!agreeToTerms) {
       setError("Please agree to the terms of service");
-      return;
-    } else {
-      formData.privacyConsent = agreeToTerms;
+      throw new Error("Terms not agreed");
     }
 
-    setLoading(true);
+    const userData: UserRegistrationData = {
+      ...formData,
+      privacyConsent: agreeToTerms,
+    };
+
+    const response = await authApi.register(userData, role);
+    login(response.token);
+
+    const redirectPath = redirectManager.getPostRegistrationPath(
+      response.user.role
+    );
+    router.push(redirectPath);
+  };
+
+  const {
+    formData,
+    errors: fieldErrors,
+    isSubmitting: loading,
+    updateField,
+    validateAndSubmit,
+  } = useFormValidation({
+    initialData: initialFormData,
+    validationFn: validationService.validateRegistrationForm,
+    onSubmit: handleSubmit,
+  });
+
+  const handleRegister = async (e: React.FormEvent) => {
+    setError("");
 
     try {
-      const userData: UserRegistrationData = {
-        ...formData,
-        // privacyConsent: agreeToTerms,
-        // role:
-        //   role === "customer" ? UserRole.CUSTOMER : UserRole.RESTAURANT_OWNER,
-      };
-
-      const response = await authApi.register(userData, role);
-      login(response.token);
-
-      // Use redirectManager for consistent redirect logic
-      const redirectPath = redirectManager.getPostRegistrationPath(
-        response.user.role
-      );
-      router.push(redirectPath);
+      const success = await validateAndSubmit(e);
+      if (!success && !agreeToTerms) {
+        // Error already set in handleSubmit
+        return;
+      }
     } catch (error) {
       console.error("Registration error:", error);
       let errorMessage = "Registration failed. Please try again.";
 
       if (error instanceof ApiError) {
-        errorMessage = error.message || errorMessage;
+        // Use the specific error message from the backend
+        errorMessage = error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
 
       setError(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -251,10 +224,8 @@ export default function Register() {
                   <Input
                     type="text"
                     placeholder="First Name"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
+                    value={formData.firstName || ""}
+                    onChange={(e) => updateField("firstName", e.target.value)}
                     required
                     variant="ghost"
                     leftIcon={<FaUser className="h-4 w-4" />}
@@ -263,10 +234,8 @@ export default function Register() {
                   <Input
                     type="text"
                     placeholder="Last Name"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
+                    value={formData.lastName || ""}
+                    onChange={(e) => updateField("lastName", e.target.value)}
                     required
                     variant="ghost"
                     error={fieldErrors.lastName}
@@ -277,8 +246,8 @@ export default function Register() {
                 <Input
                   type="email"
                   placeholder="Enter Your Email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  value={formData.email || ""}
+                  onChange={(e) => updateField("email", e.target.value)}
                   required
                   variant="ghost"
                   leftIcon={<FaEnvelope className="h-4 w-4" />}
@@ -288,12 +257,9 @@ export default function Register() {
                 {/* Phone Number */}
                 <Input
                   type="tel"
-                  placeholder="Enter Your Phone Number"
-                  value={formData.phoneNumber}
-                  onChange={(e) =>
-                    handleInputChange("phoneNumber", e.target.value)
-                  }
-                  required
+                  placeholder="Enter Your Phone Number (e.g., +1234567890)"
+                  value={formData.phoneNumber || ""}
+                  onChange={(e) => updateField("phoneNumber", e.target.value)}
                   variant="ghost"
                   leftIcon={<FaPhone className="h-4 w-4" />}
                   error={fieldErrors.phoneNumber}
@@ -303,10 +269,8 @@ export default function Register() {
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter Your Password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
+                  value={formData.password || ""}
+                  onChange={(e) => updateField("password", e.target.value)}
                   required
                   variant="ghost"
                   leftIcon={<FaLock className="h-4 w-4" />}
@@ -347,8 +311,21 @@ export default function Register() {
                 </div>
 
                 {error && (
-                  <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded">
-                    {error}
+                  <div className="text-red-500 text-sm text-center bg-red-50 border border-red-200 p-3 rounded-lg">
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg
+                        className="w-4 h-4 text-red-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>{error}</span>
+                    </div>
                   </div>
                 )}
 

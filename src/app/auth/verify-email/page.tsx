@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-// import Image from "next/image";
 import Header from "../../../components/layout/public/Header";
 import Footer from "../../../components/layout/public/Footer";
 import Breadcrumb, { BreadcrumbItem } from "../../../components/ui/Breadcrumb";
@@ -16,7 +15,21 @@ import {
   FaSpinner,
 } from "react-icons/fa";
 
-export default function VerifyEmail() {
+// Loading component for Suspense fallback
+function VerifyEmailLoading() {
+  return (
+    <div className="text-center">
+      <FaSpinner className="w-16 h-16 text-teal-500 mx-auto mb-4 animate-spin" />
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading...</h2>
+      <p className="text-gray-600">
+        Please wait while we process your request.
+      </p>
+    </div>
+  );
+}
+
+// Main verification component that uses useSearchParams
+function VerifyEmailContent() {
   const [verificationStatus, setVerificationStatus] = useState<
     "pending" | "success" | "error" | "resending"
   >("pending");
@@ -95,12 +108,6 @@ export default function VerifyEmail() {
       setVerificationStatus("pending");
     }
   };
-
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { label: "Home", href: "/" },
-    { label: "Auth", href: "#" },
-    { label: "Verify Email" },
-  ];
 
   const renderContent = () => {
     switch (verificationStatus) {
@@ -211,6 +218,18 @@ export default function VerifyEmail() {
   };
 
   return (
+    <div className="bg-white rounded-lg shadow-lg p-8">{renderContent()}</div>
+  );
+}
+
+export default function VerifyEmail() {
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: "Home", href: "/" },
+    { label: "Auth", href: "#" },
+    { label: "Verify Email" },
+  ];
+
+  return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
@@ -221,9 +240,9 @@ export default function VerifyEmail() {
 
       <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            {renderContent()}
-          </div>
+          <Suspense fallback={<VerifyEmailLoading />}>
+            <VerifyEmailContent />
+          </Suspense>
         </div>
       </div>
 

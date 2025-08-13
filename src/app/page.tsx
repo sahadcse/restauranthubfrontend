@@ -7,6 +7,7 @@ import CategoriesSection from "../components/CategoriesSection";
 import MenuItemsSection from "../components/MenuItemsSection";
 import RestaurantGrid from "../components/RestaurantGrid";
 import { useAuth } from "../contexts/authContext";
+import { useCart } from "../contexts/cartContext";
 import { useRestaurants } from "../hooks/useRestaurants";
 import { useHeroSliders } from "../hooks/useHeroSliders";
 import { useCategories } from "../hooks/useCategories";
@@ -15,6 +16,7 @@ import type { MenuItem } from "../lib/interfaces";
 
 export default function Home() {
   const { token } = useAuth();
+  const { addToCart } = useCart();
   const { restaurants, loading, error } = useRestaurants();
   const {
     heroSliders,
@@ -37,8 +39,14 @@ export default function Home() {
   };
 
   const handleAddToCart = (item: MenuItem) => {
-    // TODO: Implement add to cart functionality
-    console.log("Add to cart:", item);
+    try {
+      addToCart(item);
+      // Optional: Show success notification
+      console.log("Added to cart:", item.title);
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      // Optional: Show error notification
+    }
   };
 
   const handleAddToWishlist = (item: MenuItem) => {

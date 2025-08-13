@@ -1,7 +1,7 @@
 // Global Interface Exports - Main entry point for all interfaces
 
 // Core interfaces (excluding conflicting ones)
-export * from "./auth";
+export * from "./auth.interface";
 export * from "./restaurant";
 export * from "./order";
 export * from "./content";
@@ -37,7 +37,7 @@ export type {
   Category,
   HeroSlider,
   User,
-} from "./api";
+} from "./api.interface";
 
 // Legacy compatibility - re-export commonly used interfaces
 export type {
@@ -50,7 +50,7 @@ export type {
   User as LegacyUser,
   ApiResponse as LegacyApiResponse,
   PaginatedResponse as LegacyPaginatedResponse,
-} from "./api";
+} from "./api.interface";
 
 // New schema-based types (only the missing ones)
 export * from "./inventory";

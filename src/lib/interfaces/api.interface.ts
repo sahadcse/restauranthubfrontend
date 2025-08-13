@@ -4,7 +4,7 @@
 export * from "./enums";
 
 // Re-export all interfaces from domain-specific files
-export * from "./auth";
+export * from "./auth.interface";
 export * from "./restaurant";
 export * from "./order";
 export * from "./content";

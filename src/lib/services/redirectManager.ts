@@ -12,7 +12,7 @@ class RedirectManager {
     unauthorized: "/unauthorized",
     unauthenticated: "/auth/login",
     roleDefaults: {
-      [UserRole.CUSTOMER]: "/customer-panel",
+      [UserRole.CUSTOMER]: "/customer-dashboard",
       [UserRole.RESTAURANT_OWNER]: "/restaurant-panel",
       [UserRole.RESTAURANT_STAFF]: "/restaurant-staff",
       [UserRole.ADMIN]: "/admin",
@@ -34,7 +34,7 @@ class RedirectManager {
     // Handle both enum values and string values from backend
     const roleKey = typeof role === "string" ? (role as UserRole) : role;
     const path = this.config.roleDefaults[roleKey] || this.config.fallback;
-    console.log(`Getting default path for role ${role}:`, path);
+    console.log(`Getting default path for role ${role} (normalized: ${roleKey}):`, path);
     return path;
   }
 

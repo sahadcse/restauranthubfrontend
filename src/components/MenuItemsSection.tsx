@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import MenuItemCard from "./MenuItemCard";
 import { MenuItem, MenuItemFilters } from "../lib/interfaces";
+import { useCart } from "../contexts/cartContext";
 
 interface MenuItemsSectionProps {
   title: string;
@@ -35,6 +36,7 @@ export default function MenuItemsSection({
   onAddToWishlist,
 }: MenuItemsSectionProps) {
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const { addToCart } = useCart();
 
   const filterOptions = [
     { key: "all", label: "All Items" },
@@ -68,6 +70,18 @@ export default function MenuItemsSection({
       }
 
       onFiltersChange(filters);
+    }
+  };
+
+  const handleAddToCart = (item: MenuItem) => {
+    try {
+      if (onAddToCart) {
+        onAddToCart(item);
+      } else {
+        addToCart(item);
+      }
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
     }
   };
 
@@ -289,7 +303,7 @@ export default function MenuItemsSection({
               key={menuItem.id}
               menuItem={menuItem}
               showRestaurant={showRestaurant}
-              onAddToCart={onAddToCart}
+              onAddToCart={handleAddToCart}
               onAddToWishlist={onAddToWishlist}
             />
           ))}

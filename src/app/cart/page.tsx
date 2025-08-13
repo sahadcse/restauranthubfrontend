@@ -11,22 +11,19 @@ import { FiTrash2, FiMinus, FiPlus, FiShoppingCart } from "react-icons/fi";
 import NewArrivals from "../../components/ui/NewArrivals";
 
 function NewArrival() {
-    return(
-        <div className="bg-amber-50 py-12">
-
-          {/* This would typically use a NewArrivals component or similar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {/* Placeholder for related products */}
-            <div className="text-center text-gray-500 col-span-full py-8">
-              <NewArrivals />
-            </div>
-          </div>
+  return (
+    <div className="bg-amber-50 py-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="text-center text-gray-500 col-span-full py-8">
+          <NewArrivals />
         </div>
-    )
+      </div>
+    </div>
+  );
 }
 
 export default function CartPage() {
-  const { cart, addToCart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
@@ -36,15 +33,15 @@ export default function CartPage() {
     { label: "Cart" },
   ];
 
-  // Calculate totals - use finalPrice instead of price
+  // Calculate totals using menuItem.finalPrice
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.finalPrice * item.quantity,
+    (sum, item) => sum + item.menuItem.finalPrice * item.quantity,
     0
   );
   const deliveryCharges = subtotal > 50 ? 0 : 5.0; // Free delivery over $50
   const totalAmount = subtotal + deliveryCharges - couponDiscount;
 
-  const updateQuantity = (id: string, delta: number) => {
+  const handleUpdateQuantity = (id: string, delta: number) => {
     const item = cart.find((i) => i.id === id);
     if (!item) return;
 
@@ -52,7 +49,7 @@ export default function CartPage() {
     if (newQuantity <= 0) {
       removeFromCart(id);
     } else {
-      addToCart({ ...item, quantity: newQuantity });
+      updateQuantity(id, newQuantity);
     }
   };
 
@@ -105,10 +102,7 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* New Arrivals Section */}
         <NewArrival />
-
-        {/* Footer */}
         <Footer />
       </div>
     );
@@ -153,10 +147,10 @@ export default function CartPage() {
                     >
                       {/* Product Image */}
                       <div className="relative w-24 h-24 flex-shrink-0">
-                        {item.images?.[0]?.url || item.image_url ? (
+                        {item.menuItem.images?.[0]?.url ? (
                           <Image
-                            src={item.images?.[0]?.url || item.image_url || ''}
-                            alt={item.title}
+                            src={item.menuItem.images[0].url}
+                            alt={item.menuItem.title}
                             fill
                             className="object-cover rounded-md"
                           />
@@ -172,24 +166,26 @@ export default function CartPage() {
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-medium text-gray-900 mb-1">
-                          {item.title}
+                          {item.menuItem.title}
                         </h3>
                         <p className="text-sm text-gray-500 mb-2">
-                          {item.description}
+                          {item.menuItem.description}
                         </p>
                         <div className="flex items-center space-x-2 mb-3">
                           <span className="text-yellow-400">★★★★★</span>
-                          <span className="text-sm text-gray-500">({item.rating})</span>
+                          <span className="text-sm text-gray-500">
+                            ({item.menuItem.rating})
+                          </span>
                         </div>
 
                         {/* Price and Controls */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             <div className="text-lg font-bold text-teal-600">
-                              ${item.finalPrice.toFixed(2)}
+                              ${item.menuItem.finalPrice.toFixed(2)}
                             </div>
                             <div className="text-sm text-gray-500 line-through">
-                              ${item.mrp.toFixed(2)}
+                              ${item.menuItem.mrp.toFixed(2)}
                             </div>
                           </div>
 
@@ -197,7 +193,9 @@ export default function CartPage() {
                           <div className="flex items-center space-x-3">
                             <div className="flex items-center border border-gray-300 rounded-lg">
                               <button
-                                onClick={() => updateQuantity(item.id, -1)}
+                                onClick={() =>
+                                  handleUpdateQuantity(item.id, -1)
+                                }
                                 className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
                                 aria-label="Decrease quantity"
                               >
@@ -207,7 +205,7 @@ export default function CartPage() {
                                 {item.quantity}
                               </span>
                               <button
-                                onClick={() => updateQuantity(item.id, 1)}
+                                onClick={() => handleUpdateQuantity(item.id, 1)}
                                 className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
                                 aria-label="Increase quantity"
                               >
@@ -377,8 +375,7 @@ export default function CartPage() {
         </div>
 
         {/* New Arrivals Section - Always show */}
-          <NewArrivals />
-        
+        <NewArrivals />
       </div>
 
       <Footer />

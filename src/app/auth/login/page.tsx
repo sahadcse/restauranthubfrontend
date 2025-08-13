@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { useAuth } from "../../../contexts/authContext";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Link from "next/link";
-import axios from "axios";
 import Image from "next/image";
 import Header from "../../../components/layout/public/Header";
 import Footer from "../../../components/layout/public/Footer";
 import Breadcrumb, { BreadcrumbItem } from "../../../components/ui/Breadcrumb";
 import Input from "../../../components/ui/Input";
 import SocialLoginButtons from "../../../components/ui/SocialLoginButtons";
+import { validationService } from "../../../lib/services/validationService";
+import { LoginCredentials } from "../../../lib/interfaces/auth.interface";
 import socialData from "../../../data/socialData.json";
 import {
   FaFacebookF,
@@ -40,15 +41,17 @@ const getSocialIcon = (icon: string) => {
 };
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const { login } = useAuth();
-  const router = useRouter();
+  const { login, isLoading } = useAuth();
+  // const router = useRouter();
 
   // Breadcrumb items
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -57,15 +60,29 @@ export default function Login() {
     { label: "Login" },
   ];
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
-    if (!email.trim()) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
-    if (!password.trim()) errors.password = "Password is required";
+    const emailError = validationService.validateEmail(credentials.email);
+    if (emailError) errors.email = emailError;
+
+    const passwordError = validationService.validateRequired(
+      credentials.password,
+      "Password"
+    );
+    if (passwordError) errors.password = passwordError;
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const handleInputChange = (field: "email" | "password", value: string) => {
+    setCredentials((prev) => ({ ...prev, [field]: value }));
+
+    // Clear field error when user starts typing
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => validationService.clearFieldError(prev, field));
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -78,32 +95,17 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
-        }/auth/login`,
-        {
-          email,
-          password,
-        }
-      );
-
-      login(response.data.token);
-
-      // Redirect based on user role
-      if (response.data.user.role === "RESTAURANT_OWNER") {
-        router.push("/dashboard/orders");
-      } else if (response.data.user.role === "ADMIN") {
-        router.push("/admin/restaurants");
-      } else {
-        router.push("/");
-      }
+      console.log("Attempting login with:", { email: credentials.email });
+      await login(credentials);
+      console.log("Login successful");
+      // Redirect is now handled in the auth context
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error in component:", error);
+
       let errorMessage = "Login failed. Please try again.";
 
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || errorMessage;
+      if (error instanceof Error) {
+        errorMessage = error.message;
       }
 
       setError(errorMessage);
@@ -111,6 +113,8 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const isFormLoading = loading || isLoading;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -193,7 +197,10 @@ export default function Login() {
 
               {/* Social Login Buttons */}
               <div className="mb-6">
-                <SocialLoginButtons onError={setError} disabled={loading} />
+                <SocialLoginButtons
+                  onError={setError}
+                  disabled={isFormLoading}
+                />
               </div>
 
               {/* Divider */}
@@ -213,20 +220,23 @@ export default function Login() {
                 <Input
                   type="email"
                   placeholder="Enter Your Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={credentials.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   required
                   variant="ghost"
                   leftIcon={<FaEnvelope className="h-4 w-4" />}
                   error={fieldErrors.email}
+                  disabled={isFormLoading}
                 />
 
                 {/* Password */}
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter Your Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={credentials.password}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   required
                   variant="ghost"
                   leftIcon={<FaLock className="h-4 w-4" />}
@@ -235,6 +245,7 @@ export default function Login() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="p-1 hover:text-gray-600 transition-colors pointer-events-auto"
+                      disabled={isFormLoading}
                     >
                       {showPassword ? (
                         <FaEyeSlash className="h-4 w-4" />
@@ -244,6 +255,7 @@ export default function Login() {
                     </button>
                   }
                   error={fieldErrors.password}
+                  disabled={isFormLoading}
                 />
 
                 {/* Forgot Password Link */}
@@ -257,18 +269,19 @@ export default function Login() {
                 </div>
 
                 {error && (
-                  <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded">
-                    {error}
+                  <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded border border-red-200">
+                    <div className="font-medium mb-1">Login Error</div>
+                    <div>{error}</div>
                   </div>
                 )}
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isFormLoading}
                   className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  {loading ? "Signing In..." : "Sign In"}
+                  {isFormLoading ? "Signing In..." : "Sign In"}
                 </button>
               </form>
 

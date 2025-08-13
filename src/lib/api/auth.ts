@@ -1,19 +1,22 @@
+import { UserRole } from '@/src/lib/interfaces/enums';
 import { apiClient } from "./client";
 import {
   UserRegistrationData,
   RegisterResponse,
   EmailVerificationResponse,
   ResendVerificationResponse,
+  LoginResponse,
 } from "../interfaces";
+
 
 export const authApi = {
   // Register user (customer or restaurant owner)
   register: async (
     userData: UserRegistrationData,
-    role: "customer" | "restaurant-owner"
+    role: UserRole.CUSTOMER | UserRole.RESTAURANT_OWNER
   ): Promise<RegisterResponse> => {
     const endpoint =
-      role === "customer"
+      role === UserRole.CUSTOMER
         ? "/users/register/customer"
         : "/users/register/restaurant-owner";
 
@@ -35,6 +38,46 @@ export const authApi = {
         email,
       }
     );
+  },
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    try {
+      console.log("Making login request to API...");
+
+      const response = await apiClient.post<LoginResponse>("/auth/login", {
+        email,
+        password,
+      });
+
+      console.log("Raw API response:", response);
+
+      // Validate response structure matches the expected LoginResponse interface
+      if (!response || typeof response !== "object") {
+        throw new Error("Invalid response from server");
+      }
+
+      if (!response.user) {
+        throw new Error("User data missing from server response");
+      }
+
+      if (!response.tokens) {
+        throw new Error("Token data missing from server response");
+      }
+
+      if (!response.tokens.accessToken) {
+        throw new Error("Access token missing from server response");
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Login API error:", error);
+
+      // Re-throw with more specific error information
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error("Network error during login");
+    }
   },
 };
 

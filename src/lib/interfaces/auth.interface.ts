@@ -62,14 +62,24 @@ export interface RegisterResponse {
   };
 }
 
+// export interface LoginResponse {
+//   success: boolean;
+//   message: string;
+//   data: {
+//     user: User;
+//     token: string;
+//     refreshToken?: string;
+//     expiresAt: string;
+//   };
+// }
+
 export interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: {
-    user: User;
-    token: string;
-    refreshToken?: string;
-    expiresAt: string;
+  user: User;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    tokenType: string;
   };
 }
 

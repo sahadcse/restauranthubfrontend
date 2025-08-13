@@ -10,10 +10,11 @@ import HeaderNav from "./HeaderNav";
 import CartModal from "../../features/cart/CartModal";
 import headerData from "../../../data/headerData.json";
 import { FiSearch, FiUser, FiHeart, FiShoppingBag } from "react-icons/fi";
+import { redirectManager } from "../../../lib/services/redirectManager"; // Import redirectManager
 
 // Reusable header with navigation links
 const Header = () => {
-  const { token, logout } = useAuth();
+  const { token, logout, user } = useAuth(); // added user
   const { cart } = useCart();
   const { wishlist } = useWishlist();
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -30,20 +31,19 @@ const Header = () => {
 
   return (
     <>
-      <header className="">
-        {/* Pass props to HeaderTop */}
-        <HeaderTop
-          onCartToggle={() => setIsCartOpen(true)}
-          cartItemCount={cartItemCount}
-          wishlistItemCount={wishlistItemCount} // Pass wishlist count
-        />
-        {/* Header Top End */}
+      {/* Header Top remains unchanged */}
+      <HeaderTop
+        onCartToggle={() => setIsCartOpen(true)}
+        cartItemCount={cartItemCount}
+        wishlistItemCount={wishlistItemCount}
+      />
 
-        {/* Header Middle Section */}
-        <div className="border-b border-gray-200 py-4 lg:py-0">
-          <div className="container mx-auto px-4 relative">
+      {/* Moved Header Middle Section for sticky to work */}
+      <div className="sticky top-0 z-50">
+        <div className="border-b border-gray-200 lg:py-0 bg-white shadow-sm">
+          <div className="container mx-auto px-4">
             {/* Desktop Header Middle Start (Hidden on Mobile) */}
-            <div className="hidden lg:flex items-center justify-between py-4">
+            <div className="hidden lg:flex items-center justify-between py-2">
               {/* Header Logo Start */}
               <div className="header-logo">
                 <Link href="/" className="flex items-center">
@@ -83,8 +83,7 @@ const Header = () => {
               <div className="flex items-center space-x-4">
                 {/* Header User Start */}
                 <div className="relative group">
-                  <a
-                    href="#"
+                  <button
                     className="flex items-center text-gray-700 hover:text-blue-500"
                     title="Account"
                   >
@@ -97,26 +96,28 @@ const Header = () => {
                         {token ? "Manage" : "Login"}
                       </span>
                     </div>
-                  </a>
+                  </button>
                   <ul className="absolute right-0 mt-0.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block z-10">
                     {token ? (
                       <>
                         <li>
                           <Link
-                            href="/profile"
+                            href={redirectManager.getPostLoginPath(
+                              user?.role || ""
+                            )} // changed to dynamic role-based URL
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           >
                             My Account
                           </Link>
                         </li>
-                        <li>
+                        {/* <li>
                           <Link
                             href="/orders"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           >
                             Orders
                           </Link>
-                        </li>
+                        </li> */}
                         <li>
                           <Link
                             href="/checkout"
@@ -262,15 +263,15 @@ const Header = () => {
             {/* Mobile Header Middle End */}
           </div>
         </div>
-        {/* Header Middle End */}
+      </div>
 
-        {/* Header Nav Start */}
+      <header className="z-50 bg-white shadow-sm">
+        {/* Header Nav remains */}
         <div className="hidden lg:block">
           <HeaderNav />
         </div>
         {/* Header Nav End */}
       </header>
-      {/* Render CartModal, controlled by Header state */}
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );

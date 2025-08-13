@@ -4,6 +4,7 @@ import { AuthProvider } from "@/src/contexts/authContext";
 import ProtectedRoute from "@/src/components/auth/ProtectedRoute";
 import Sidebar from "@/src/components/layout/Protected/Sidebar";
 import Header from "@/src/components/layout/Protected/Header";
+import Footer from "@/src/components/layout/Protected/Footer";
 import { useAuth } from "@/src/contexts/authContext";
 import { UserRole } from "@/src/lib/interfaces/enums";
 import { usePathname } from "next/navigation";
@@ -11,9 +12,6 @@ import { useMemo } from "react";
 
 // Route-to-role mapping for different sections
 const getRequiredRoles = (pathname: string): string[] => {
-  if (pathname.includes("customer-panel")) {
-    return [UserRole.CUSTOMER];
-  }
   if (pathname.includes("admin")) {
     return [UserRole.ADMIN, UserRole.SUPER_ADMIN];
   }
@@ -44,8 +42,11 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
           <Sidebar userRole={user.role} />
           <div className="flex-1 flex flex-col overflow-hidden">
             <Header user={user} onLogout={logout} />
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-              {children}
+            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+              <div className="min-h-full flex flex-col">
+                <div className="flex-1 p-6">{children}</div>
+                <Footer userRole={user.role} />
+              </div>
             </main>
           </div>
         </div>

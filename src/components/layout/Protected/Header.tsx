@@ -3,6 +3,8 @@
 import { UserRole } from "@/src/lib/interfaces/enums";
 import { useState } from "react";
 import { User } from "@/src/lib/interfaces";
+import { FaHome } from "react-icons/fa";
+import Link from "next/link";
 
 interface HeaderProps {
   user: User;
@@ -11,6 +13,8 @@ interface HeaderProps {
 
 export default function Header({ user, onLogout }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  console.log("User data from Header:", user);
 
   const getRoleBadgeColor = (role: UserRole): string => {
     const colors: Record<UserRole, string> = {
@@ -25,10 +29,15 @@ export default function Header({ user, onLogout }: HeaderProps) {
   };
 
   const getUserDisplayName = (user: User): string => {
-    // if (user.name) return user.name;
-    if (user.firstName || user.lastName) {
+    // Check if firstName or lastName exist and are not empty
+    const hasFirstName = user.firstName && user.firstName.trim() !== "";
+    const hasLastName = user.lastName && user.lastName.trim() !== "";
+
+    if (hasFirstName || hasLastName) {
       return `${user.firstName || ""} ${user.lastName || ""}`.trim();
     }
+
+    // Fallback to email username
     return user.email.split("@")[0];
   };
 
@@ -37,7 +46,16 @@ export default function Header({ user, onLogout }: HeaderProps) {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-6 py-4 flex justify-between items-center">
-        <div>
+        <div className="flex items-center space-x-4">
+          <Link
+            href="/"
+            className="flex items-center text-teal-600 hover:text-teal-700 transition-colors"
+            title="Go to Homepage"
+          >
+            <FaHome className="text-lg mr-2" />
+            <span className="font-medium">Home</span>
+          </Link>
+          <div className="border-l border-gray-300 h-6"></div>
           <h2 className="text-xl font-semibold text-gray-900">
             Welcome back, {getUserDisplayName(user)}
           </h2>
@@ -49,7 +67,7 @@ export default function Header({ user, onLogout }: HeaderProps) {
               user.role
             )}`}
           >
-            {user.role}
+            {user.role.toLowerCase().replace("_", " ")}
           </span>
 
           <div className="relative">

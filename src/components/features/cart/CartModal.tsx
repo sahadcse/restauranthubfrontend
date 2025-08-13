@@ -14,7 +14,7 @@ interface CartModalProps {
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
-  const { cart, addToCart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const { token } = useAuth();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -26,7 +26,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   }, [isOpen]);
 
   const subTotal = cart.reduce(
-    (sum, item) => sum + item.finalPrice * item.quantity,
+    (sum, item) => sum + item.menuItem.finalPrice * item.quantity,
     0
   );
   const vatRate = 0.2;
@@ -44,23 +44,23 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
     setIsCheckingOut(true);
     try {
-      // Convert string restaurantId to number for API compatibility
-      const restaurantId = parseInt(cart[0].restaurantId, 10);
+      // Get restaurantId from the first item's menuItem
+      const restaurantId = parseInt(cart[0].menuItem.restaurantId, 10);
       if (isNaN(restaurantId)) {
         throw new Error("Invalid restaurant ID");
       }
 
       const items = cart.map((item) => {
-        const menuItemId = parseInt(item.id, 10);
+        const menuItemId = parseInt(item.menuItem.id, 10);
         if (isNaN(menuItemId)) {
-          throw new Error(`Invalid menu item ID: ${item.id}`);
+          throw new Error(`Invalid menu item ID: ${item.menuItem.id}`);
         }
         return {
           menu_item_id: menuItemId,
           quantity: item.quantity,
         };
       });
-      
+
       await createOrder(restaurantId, items, subTotal, token);
       setOrderSuccess(true);
       clearCart();
@@ -72,7 +72,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     }
   };
 
-  const updateQuantity = (id: string, delta: number) => {
+  const handleUpdateQuantity = (id: string, delta: number) => {
     const item = cart.find((i) => i.id === id);
     if (!item) return;
     const newQuantity = item.quantity + delta;
@@ -80,7 +80,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     if (newQuantity <= 0) {
       removeFromCart(id);
     } else {
-      addToCart({ ...item, quantity: newQuantity });
+      updateQuantity(id, newQuantity);
     }
   };
 
@@ -142,10 +142,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   >
                     <FiX />
                   </button>
-                  {item.images?.[0]?.url || item.image_url ? (
+                  {item.menuItem.images?.[0]?.url ? (
                     <Image
-                      src={item.images?.[0]?.url || item.image_url || ''}
-                      alt={item.title}
+                      src={item.menuItem.images[0].url}
+                      alt={item.menuItem.title}
                       width={64}
                       height={64}
                       className="w-16 h-16 object-cover rounded-md flex-shrink-0"
@@ -158,15 +158,15 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="text-base font-medium text-black leading-tight">
-                        {item.title}
+                        {item.menuItem.title}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        ${item.finalPrice.toFixed(2)} x {item.quantity}
+                        ${item.menuItem.finalPrice.toFixed(2)} x {item.quantity}
                       </p>
                     </div>
                     <div className="flex items-center border border-gray-200 rounded w-fit mt-1">
                       <button
-                        onClick={() => updateQuantity(item.id, -1)}
+                        onClick={() => handleUpdateQuantity(item.id, -1)}
                         className="text-gray-600 px-2 py-0.5 rounded-l hover:bg-gray-100 transition-colors"
                         aria-label="Decrease quantity"
                       >
@@ -174,7 +174,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                       </button>
                       <span className="px-2 text-sm">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, 1)}
+                        onClick={() => handleUpdateQuantity(item.id, 1)}
                         className="text-gray-600 px-2 py-0.5 rounded-r hover:bg-gray-100 transition-colors"
                         aria-label="Increase quantity"
                       >

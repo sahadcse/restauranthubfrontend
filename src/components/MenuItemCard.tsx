@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MenuItem } from "../lib/interfaces";
+import { useCart } from "../contexts/cartContext";
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
@@ -18,6 +19,8 @@ export default function MenuItemCard({
   onAddToCart,
   onAddToWishlist,
 }: MenuItemCardProps) {
+  const { addToCart } = useCart();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const primaryImage =
     menuItem.images?.find((img) => img.isPrimary)?.url ||
     "/placeholder-food.jpg";
@@ -49,6 +52,24 @@ export default function MenuItemCard({
         return "Discontinued";
       default:
         return status;
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (isAddingToCart) return;
+
+    setIsAddingToCart(true);
+    try {
+      if (onAddToCart) {
+        onAddToCart(menuItem);
+      } else {
+        // Fallback to cart context
+        addToCart(menuItem);
+      }
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -212,10 +233,15 @@ export default function MenuItemCard({
             )}
           </div>
 
-          {onAddToCart && menuItem.stockStatus === "IN_STOCK" && (
+          {menuItem.stockStatus === "IN_STOCK" && (
             <button
-              onClick={() => onAddToCart(menuItem)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center"
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+              className={`${
+                isAddingToCart
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center`}
             >
               <svg
                 className="w-4 h-4 mr-1"
@@ -230,7 +256,7 @@ export default function MenuItemCard({
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 2.5M7 13l2.5 2.5m0 0L17 21H7l2.5-2.5z"
                 />
               </svg>
-              Add
+              {isAddingToCart ? "Adding..." : "Add"}
             </button>
           )}
         </div>

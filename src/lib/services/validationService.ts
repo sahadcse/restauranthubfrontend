@@ -1,4 +1,4 @@
-import { UserRegistrationData } from "./../interfaces/auth";
+import { UserRegistrationData } from "../interfaces/auth.interface";
 import { VALIDATION_RULES } from "../utils/constants";
 
 export interface ValidationErrors {

@@ -6,7 +6,8 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { MenuItem, CartItem } from "../lib/interfaces";
+import { MenuItem } from "../lib/interfaces";
+import { CartItemWithDetails } from "../lib/interfaces/cart";
 import {
   transformLegacyToMenuItem,
   LegacyCartItem,
@@ -18,11 +19,16 @@ import {
 // }
 
 interface CartContextType {
-  cart: CartItem[];
-  addToCart: (item: MenuItem & { quantity?: number }) => void;
+  cart: CartItemWithDetails[];
+  addToCart: (
+    item: MenuItem & { quantity?: number; variantId?: string }
+  ) => void;
   addLegacyToCart: (item: LegacyCartItem) => void;
   removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  getTotalItems: () => number;
+  getTotalPrice: () => number;
 }
 
 // Context creation
@@ -30,20 +36,39 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Provider component
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItemWithDetails[]>([]);
 
   // Add item to cart
-  const addToCart = (item: MenuItem & { quantity?: number }) => {
+  const addToCart = (
+    item: MenuItem & { quantity?: number; variantId?: string }
+  ) => {
     setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id
-            ? { ...i, quantity: item.quantity ?? i.quantity + 1 } // Use provided quantity or increment
-            : i
-        );
+      const existingIndex = prev.findIndex(
+        (i) => i.menuItemId === item.id && i.variantId === item.variantId
+      );
+
+      if (existingIndex >= 0) {
+        // Update existing item quantity
+        const updated = [...prev];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          quantity: updated[existingIndex].quantity + (item.quantity ?? 1),
+        };
+        return updated;
       }
-      return [...prev, { ...item, quantity: item.quantity ?? 1 }] as CartItem[]; // Default to 1 if no quantity provided
+
+      // Create new cart item with complete MenuItem data
+      const newCartItem: CartItemWithDetails = {
+        id: `temp-${Date.now()}-${Math.random()}`, // Temporary ID for local state
+        cartId: "temp-cart", // Will be replaced when synced with backend
+        menuItemId: item.id,
+        variantId: item.variantId,
+        quantity: item.quantity ?? 1,
+        addedAt: new Date(),
+        menuItem: item, // Store the complete MenuItem object
+      };
+
+      return [...prev, newCartItem];
     });
   };
 
@@ -58,14 +83,48 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 
+  // Update item quantity
+  const updateQuantity = (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(id);
+      return;
+    }
+
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+    );
+  };
+
   // Clear the cart
   const clearCart = () => {
     setCart([]);
   };
 
+  // Get total items count
+  const getTotalItems = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  // Get total price
+  const getTotalPrice = () => {
+    return cart.reduce(
+      (total, item) => total + item.menuItem.finalPrice * item.quantity,
+      0
+    );
+  };
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, addLegacyToCart, removeFromCart, clearCart }}
+      value={{
+        cart,
+        addToCart,
+        addLegacyToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        getTotalItems,
+        getTotalPrice,
+      }}
     >
       {children}
     </CartContext.Provider>

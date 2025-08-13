@@ -9,7 +9,7 @@ function SocialLoginSuccessContent() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { setToken } = useAuth(); // Changed from login to setToken
 
   useEffect(() => {
     const processCallback = async () => {
@@ -23,8 +23,13 @@ function SocialLoginSuccessContent() {
           throw new Error("No authentication token received");
         }
 
-        // Store tokens and login user
-        login(token, refreshToken || undefined);
+        // Store tokens and set user authentication
+        setToken(token); // Use setToken instead of login
+
+        // Store refresh token separately if provided
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
 
         // Show welcome message for new users
         if (isNewUser) {
@@ -36,13 +41,15 @@ function SocialLoginSuccessContent() {
         router.replace("/");
       } catch (error) {
         console.error("Social login callback error:", error);
-        setError(error instanceof Error ? error.message : "Authentication failed");
+        setError(
+          error instanceof Error ? error.message : "Authentication failed"
+        );
         setProcessing(false);
       }
     };
 
     processCallback();
-  }, [searchParams, login, router]);
+  }, [searchParams, setToken, router]);
 
   if (processing) {
     return (
@@ -52,7 +59,9 @@ function SocialLoginSuccessContent() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Completing your login...
           </h2>
-          <p className="text-gray-600">Please wait while we finish setting up your account.</p>
+          <p className="text-gray-600">
+            Please wait while we finish setting up your account.
+          </p>
         </div>
       </div>
     );
@@ -63,8 +72,18 @@ function SocialLoginSuccessContent() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="bg-red-100 rounded-full h-12 w-12 flex items-center justify-center mx-auto mb-4">
-            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="h-6 w-6 text-red-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -87,17 +106,21 @@ function SocialLoginSuccessContent() {
 
 export default function SocialLoginSuccess() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Loading...
-          </h2>
-          <p className="text-gray-600">Please wait while we process your authentication.</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Loading...
+            </h2>
+            <p className="text-gray-600">
+              Please wait while we process your authentication.
+            </p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SocialLoginSuccessContent />
     </Suspense>
   );

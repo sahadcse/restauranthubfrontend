@@ -16,15 +16,22 @@ import {
   ContentCreateRequest,
 } from "../interfaces/content";
 
+// Error interface for API errors
+interface ApiError {
+  status?: number;
+  message?: string;
+}
+
 // Super Admin API Service
 export class SuperAdminApi {
   // Dashboard & Analytics
   async getDashboardStats(): Promise<SuperAdminStats> {
     try {
       return await apiClient.get<SuperAdminStats>("/admin/dashboard/stats");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       // Re-throw with additional context
-      if (error.status === 404) {
+      if (apiError.status === 404) {
         throw new Error("Dashboard stats endpoint not implemented");
       }
       throw error;
@@ -45,9 +52,10 @@ export class SuperAdminApi {
       return await apiClient.get<RecentActivity[]>(
         `/admin/activity?${queryParams.toString()}`
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       // Re-throw with additional context
-      if (error.status === 404) {
+      if (apiError.status === 404) {
         throw new Error("Recent activity endpoint not implemented");
       }
       throw error;
@@ -59,8 +67,9 @@ export class SuperAdminApi {
       return await apiClient.get<SystemNotification[]>(
         "/admin/notifications/system"
       );
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.status === 404) {
         throw new Error("System notifications endpoint not implemented");
       }
       throw error;
@@ -70,8 +79,9 @@ export class SuperAdminApi {
   async getBackupStatus(): Promise<BackupStatus> {
     try {
       return await apiClient.get<BackupStatus>("/admin/system/backup/status");
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.status === 404) {
         throw new Error("Backup status endpoint not implemented");
       }
       throw error;
@@ -81,8 +91,9 @@ export class SuperAdminApi {
   async triggerBackup(): Promise<{ message: string; backupId: string }> {
     try {
       return await apiClient.post("/admin/system/backup/trigger");
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.status === 404) {
         throw new Error("Backup trigger endpoint not implemented");
       }
       throw error;
@@ -92,8 +103,9 @@ export class SuperAdminApi {
   async getDatabaseStats(): Promise<DatabaseStats> {
     try {
       return await apiClient.get<DatabaseStats>("/admin/system/database/stats");
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.status === 404) {
         throw new Error("Database stats endpoint not implemented");
       }
       throw error;
@@ -264,8 +276,9 @@ export class SuperAdminApi {
   async getSystemHealth(): Promise<SystemHealth> {
     try {
       return await apiClient.get<SystemHealth>("/admin/system/health");
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.status === 404) {
         throw new Error("System health endpoint not implemented");
       }
       throw error;
@@ -275,8 +288,9 @@ export class SuperAdminApi {
   async testEmailConfiguration(): Promise<EmailTestResult> {
     try {
       return await apiClient.get<EmailTestResult>("/admin/system/test-email");
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.status === 404) {
         throw new Error("Email test endpoint not implemented");
       }
       throw error;

@@ -16,7 +16,7 @@ class RedirectManager {
       [UserRole.RESTAURANT_OWNER]: "/restaurant-panel",
       [UserRole.RESTAURANT_STAFF]: "/restaurant-staff",
       [UserRole.ADMIN]: "/admin",
-      [UserRole.SUPER_ADMIN]: "/superadmin",
+      [UserRole.SUPER_ADMIN]: "/super-admin",
       [UserRole.DRIVER]: "/driver-panel",
     },
     fallback: "/",

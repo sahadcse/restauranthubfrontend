@@ -53,9 +53,9 @@ export default function Footer({ userRole }: FooterProps) {
         { name: "Reports", href: "/admin/reports" },
       ],
       [UserRole.SUPER_ADMIN]: [
-        { name: "Super Admin", href: "/superadmin" },
-        { name: "System Settings", href: "/superadmin/settings" },
-        { name: "Global Analytics", href: "/superadmin/analytics" },
+        { name: "Super Admin", href: "/super-admin" },
+        { name: "System Settings", href: "/super-admin/settings" },
+        { name: "Global Analytics", href: "/super-admin/analytics" },
       ],
       [UserRole.DRIVER]: [
         { name: "Driver Dashboard", href: "/driver" },

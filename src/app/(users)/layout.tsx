@@ -12,7 +12,7 @@ import { useMemo } from "react";
 
 // Route-to-role mapping for different sections
 const getRequiredRoles = (pathname: string): string[] => {
-  if (pathname.includes("superadmin")) {
+  if (pathname.includes("super-admin")) {
     return [UserRole.SUPER_ADMIN];
   }
   if (pathname.includes("admin")) {

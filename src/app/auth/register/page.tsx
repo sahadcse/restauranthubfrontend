@@ -43,7 +43,9 @@ const getSocialIcon = (icon: string) => {
 };
 
 export default function Register() {
-  const [role] = useState<UserRole.CUSTOMER | UserRole.RESTAURANT_OWNER>(UserRole.CUSTOMER);
+  const [role] = useState<UserRole.CUSTOMER | UserRole.RESTAURANT_OWNER>(
+    UserRole.CUSTOMER
+  );
   const [error, setError] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -154,7 +156,7 @@ export default function Register() {
         className="container mx-auto max-w-7xl"
       />
 
-      <div className="flex-1 flex container mx-auto max-w-7xl my-6">
+      <div className="flex-1 flex container mx-auto max-w-7xl my-6 px-4">
         {/* Left Side - Background Image with Welcome */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
           {/* Background Image */}
@@ -203,32 +205,34 @@ export default function Register() {
         {/* Right Side - Registration Form */}
         <div className="w-full lg:w-1/2 flex flex-col bg-gray-50 rounded-lg shadow-lg">
           {/* Header Tabs */}
-          <div className="flex mx-[60%] min-w-40">
-            <Link
-              href="/auth/login"
-              className="flex-1 py-1.5 px-3 text-center text-gray-600 hover:text-gray-800 transition-colors rounded-bl-lg rounded-br-lg"
-            >
-              Sign In
-            </Link>
-            <div className="flex-1 py-1.5 px-3 text-center bg-teal-500 text-white font-medium rounded-bl-md rounded-br-md">
-              Register
+          <div className="flex justify-center lg:justify-start lg:ml-8 lg:mr-8">
+            <div className="flex w-full max-w-80">
+              <Link
+                href="/auth/login"
+                className="flex-1 py-1.5 px-3 text-center text-gray-600 hover:text-gray-800 transition-colors rounded-bl-lg rounded-br-lg text-sm sm:text-base border border-gray-300 border-r-0"
+              >
+                Sign In
+              </Link>
+              <div className="flex-1 py-1.5 px-3 text-center bg-teal-500 text-white font-medium rounded-bl-md rounded-br-md text-sm sm:text-base border border-teal-500">
+                Register
+              </div>
             </div>
           </div>
 
           {/* Form Content */}
-          <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gray-50">
             <div className="w-full max-w-md">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
                 Register
               </h2>
 
               {/* Social Login Buttons */}
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <SocialLoginButtons onError={setError} disabled={loading} />
               </div>
 
               {/* Divider */}
-              <div className="relative mb-6">
+              <div className="relative mb-4 sm:mb-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
                 </div>
@@ -239,9 +243,12 @@ export default function Register() {
                 </div>
               </div>
 
-              <form onSubmit={handleRegister} className="space-y-6">
+              <form
+                onSubmit={handleRegister}
+                className="space-y-4 sm:space-y-6"
+              >
                 {/* Name Fields */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     type="text"
                     placeholder="First Name"
@@ -318,7 +325,7 @@ export default function Register() {
                     id="terms"
                     checked={agreeToTerms}
                     onChange={(e) => setAgreeToTerms(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-teal-500 border-gray-300 rounded focus:ring-teal-500"
+                    className="mt-1 w-4 h-4 text-teal-500 border-gray-300 rounded focus:ring-teal-500 flex-shrink-0"
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600">
                     I agree to all the statements in{" "}
@@ -335,7 +342,7 @@ export default function Register() {
                   <div className="text-red-500 text-sm text-center bg-red-50 border border-red-200 p-3 rounded-lg">
                     <div className="flex items-center justify-center space-x-2">
                       <svg
-                        className="w-4 h-4 text-red-500"
+                        className="w-4 h-4 text-red-500 flex-shrink-0"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -345,7 +352,7 @@ export default function Register() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span>{error}</span>
+                      <span className="break-words">{error}</span>
                     </div>
                   </div>
                 )}
@@ -361,20 +368,20 @@ export default function Register() {
               </form>
 
               {/* Additional Registration Option */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                 <p className="text-center text-sm text-gray-600 mb-3">
                   Want to register your restaurant?
                 </p>
                 <Link
                   href="/vendor-signup"
-                  className="w-full block text-center bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  className="w-full block text-center bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm"
                 >
                   Restaurant Owner Registration
                 </Link>
               </div>
 
               {/* Login Link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
+              <p className="mt-4 sm:mt-6 text-center text-sm text-gray-600">
                 Already have an account?{" "}
                 <Link
                   href="/auth/login"

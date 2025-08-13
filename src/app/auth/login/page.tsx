@@ -126,7 +126,7 @@ export default function Login() {
         className="container mx-auto max-w-7xl"
       />
 
-      <div className="flex-1 flex container mx-auto max-w-7xl my-6">
+      <div className="flex-1 flex container mx-auto max-w-7xl my-6 px-4">
         {/* Left Side - Background Image with Welcome */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
           {/* Background Image */}
@@ -176,27 +176,29 @@ export default function Login() {
         {/* Right Side - Login Form */}
         <div className="w-full lg:w-1/2 flex flex-col bg-gray-50 rounded-lg shadow-lg">
           {/* Header Tabs */}
-          <div className="flex mx-[60%] min-w-40">
-            <div className="flex-1 py-1.5 px-3 text-center bg-teal-500 text-white font-medium rounded-bl-md rounded-br-md">
-              Sign In
+          <div className="flex justify-center lg:justify-start lg:ml-8 lg:mr-8">
+            <div className="flex w-full max-w-80">
+              <div className="flex-1 py-1.5 px-3 text-center bg-teal-500 text-white font-medium rounded-bl-md rounded-br-md text-sm sm:text-base border border-teal-500">
+                Sign In
+              </div>
+              <Link
+                href="/auth/register"
+                className="flex-1 py-1.5 px-3 text-center text-gray-600 hover:text-gray-800 transition-colors rounded-bl-lg rounded-br-lg text-sm sm:text-base border border-gray-300 border-l-0"
+              >
+                Register
+              </Link>
             </div>
-            <Link
-              href="/auth/register"
-              className="flex-1 py-1.5 px-3 text-center text-gray-600 hover:text-gray-800 transition-colors rounded-bl-lg rounded-br-lg"
-            >
-              Register
-            </Link>
           </div>
 
           {/* Form Content */}
-          <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gray-50">
             <div className="w-full max-w-md">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
                 Sign In
               </h2>
 
               {/* Social Login Buttons */}
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <SocialLoginButtons
                   onError={setError}
                   disabled={isFormLoading}
@@ -204,7 +206,7 @@ export default function Login() {
               </div>
 
               {/* Divider */}
-              <div className="relative mb-6">
+              <div className="relative mb-4 sm:mb-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
                 </div>
@@ -215,7 +217,7 @@ export default function Login() {
                 </div>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
                 {/* Email */}
                 <Input
                   type="email"
@@ -271,7 +273,7 @@ export default function Login() {
                 {error && (
                   <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded border border-red-200">
                     <div className="font-medium mb-1">Login Error</div>
-                    <div>{error}</div>
+                    <div className="break-words">{error}</div>
                   </div>
                 )}
 
@@ -286,7 +288,7 @@ export default function Login() {
               </form>
 
               {/* Register Link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
+              <p className="mt-4 sm:mt-6 text-center text-sm text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/auth/register"

@@ -16,7 +16,7 @@ class RedirectManager {
       [UserRole.RESTAURANT_OWNER]: "/restaurant-panel",
       [UserRole.RESTAURANT_STAFF]: "/restaurant-staff",
       [UserRole.ADMIN]: "/admin",
-      [UserRole.SUPER_ADMIN]: "/superAdmin",
+      [UserRole.SUPER_ADMIN]: "/superadmin",
       [UserRole.DRIVER]: "/driver-panel",
     },
     fallback: "/",
@@ -71,6 +71,17 @@ class RedirectManager {
   // Utility method for login redirects
   getPostLoginPath(role: UserRole | string): string {
     return this.getRoleDefaultPath(role);
+  }
+
+  // Enhanced method for super admin specific redirects
+  getSuperAdminPath(subPath?: string): string {
+    const basePath = this.config.roleDefaults[UserRole.SUPER_ADMIN];
+    return subPath ? `${basePath}${subPath}` : `${basePath}/dashboard`;
+  }
+
+  // Method to check if user can access super admin features
+  canAccessSuperAdmin(userRole: UserRole | string): boolean {
+    return userRole === UserRole.SUPER_ADMIN;
   }
 }
 

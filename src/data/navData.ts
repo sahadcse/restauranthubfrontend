@@ -253,6 +253,73 @@ const navData = {
       href: "/offers",
       icon: "badge-percent",
     },
+    {
+      title: "For Restaurants",
+      type: "megamenu",
+      columns: [
+        {
+          title: "Get Started",
+          items: [
+            { name: "Register Restaurant", href: "/vendor-signup" },
+            { name: "Restaurant Login", href: "/auth/login" },
+            { name: "Forgot Password", href: "/restaurant/forgot-password" },
+            { name: "Verify Account", href: "/restaurant/verify" },
+            { name: "Onboarding Guide", href: "/restaurant/onboarding" },
+          ],
+        },
+        {
+          title: "Management",
+          items: [
+            { name: "Dashboard", href: "/restaurant/dashboard" },
+            { name: "Menu Management", href: "/restaurant/menu" },
+            { name: "Orders", href: "/restaurant/orders" },
+            { name: "Analytics", href: "/restaurant/analytics" },
+            { name: "Profile Settings", href: "/restaurant/profile" },
+          ],
+        },
+        {
+          title: "Support",
+          items: [
+            { name: "Partner Support", href: "/restaurant/support" },
+            { name: "Commission Info", href: "/restaurant/commission" },
+            { name: "Best Practices", href: "/restaurant/best-practices" },
+            { name: "Training Resources", href: "/restaurant/training" },
+            { name: "Documentation", href: "/restaurant/docs" },
+          ],
+        },
+        {
+          title: "Tools",
+          items: [
+            { name: "Restaurant App", href: "/restaurant/app" },
+            { name: "POS Integration", href: "/restaurant/pos" },
+            { name: "Inventory Management", href: "/restaurant/inventory" },
+            { name: "Marketing Tools", href: "/restaurant/marketing" },
+            { name: "Reports", href: "/restaurant/reports" },
+          ],
+        },
+      ],
+    },
+  ],
+
+  // Restaurant-specific navigation
+  
+
+  // Customer authentication menu
+  customerAuth: [
+    {
+      title: "Account",
+      type: "dropdown",
+      items: [
+        { name: "Sign In", href: "/login" },
+        { name: "Sign Up", href: "/register" },
+        { name: "My Profile", href: "/profile" },
+        { name: "Order History", href: "/orders" },
+        { name: "Favorites", href: "/favorites" },
+        { name: "Addresses", href: "/addresses" },
+        { name: "Payment Methods", href: "/payment-methods" },
+        { name: "Logout", href: "/logout", action: "logout" },
+      ],
+    },
   ],
 
   // Locations

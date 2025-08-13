@@ -81,7 +81,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
   }, []);
 
   return (
-    <div className="header-top bg-white py-2 text-sm border-b lg:border-none lg:bg-gray-100 lg:py-1">
+    <div className="header-top bg-white py-2 text-sm border-b lg:border-none lg:bg-gray-100 lg:py-1 lg:static sticky top-0 z-50 lg:z-auto pt-safe lg:pt-2">
       <div className="container mx-auto px-4">
         {/* Header Top Bar Start */}
         <div className="flex items-center justify-between lg:justify-start">

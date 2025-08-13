@@ -12,6 +12,9 @@ import { useMemo } from "react";
 
 // Route-to-role mapping for different sections
 const getRequiredRoles = (pathname: string): string[] => {
+  if (pathname.includes("superadmin")) {
+    return [UserRole.SUPER_ADMIN];
+  }
   if (pathname.includes("admin")) {
     return [UserRole.ADMIN, UserRole.SUPER_ADMIN];
   }
@@ -20,9 +23,6 @@ const getRequiredRoles = (pathname: string): string[] => {
   }
   if (pathname.includes("driver")) {
     return [UserRole.DRIVER];
-  }
-  if (pathname.includes("superadmin")) {
-    return [UserRole.SUPER_ADMIN];
   }
 
   // Default: allow all authenticated users

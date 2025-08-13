@@ -6,6 +6,7 @@ export * from "./restaurant";
 export * from "./order";
 export * from "./content";
 
+
 // Handle conflicting exports explicitly
 export * from "./common";
 export type {
@@ -59,3 +60,4 @@ export * from "./security";
 export * from "./email";
 export * from "./menu";
 export * from "./blog-extended";
+export * from "./superadmin.interface";

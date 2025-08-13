@@ -31,9 +31,9 @@ export default function Footer({ userRole }: FooterProps) {
     > = {
       [UserRole.CUSTOMER]: [
         { name: "Browse Restaurants", href: "/restaurants" },
-        { name: "My Orders", href: "/customer-panel?tab=orders" },
-        { name: "My Addresses", href: "/customer-panel?tab=addresses" },
-        { name: "Loyalty Program", href: "/customer-panel?tab=loyalty" },
+        { name: "My Orders", href: "/customer-dashboard?tab=orders" },
+        { name: "My Addresses", href: "/customer-dashboard?tab=addresses" },
+        { name: "Loyalty Program", href: "/customer-dashboard?tab=loyalty" },
       ],
       [UserRole.RESTAURANT_OWNER]: [
         { name: "Dashboard", href: "/dashboard" },

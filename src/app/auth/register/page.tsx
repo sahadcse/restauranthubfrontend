@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi } from "../../../lib/api/auth";
 import { UserRegistrationData } from "../../../lib/interfaces";
-// import { UserRole } from "../../../lib/interfaces/enums";
+import { UserRole } from "../../../lib/interfaces/enums";
 // import { redirectManager } from "../../../lib/services/redirectManager";
 import { validationService } from "../../../lib/services/validationService";
 import { useFormValidation } from "../../../hooks/useFormValidation";
@@ -43,7 +43,7 @@ const getSocialIcon = (icon: string) => {
 };
 
 export default function Register() {
-  const [role] = useState<"customer" | "restaurant-owner">("customer");
+  const [role] = useState<UserRole.CUSTOMER | UserRole.RESTAURANT_OWNER>(UserRole.CUSTOMER);
   const [error, setError] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

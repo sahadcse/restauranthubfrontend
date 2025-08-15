@@ -1,6 +1,7 @@
 "use client";
 
 import { UserRole } from "@/src/lib/interfaces/enums";
+import Link from "next/link";
 import {
   FaFacebook,
   FaTwitter,
@@ -85,34 +86,34 @@ export default function Footer({ userRole }: FooterProps) {
               seamlessly.
             </p>
             <div className="flex space-x-4">
-              <a
+              <Link
                 href="#"
                 className="text-gray-400 hover:text-teal-500 transition-colors"
                 aria-label="Facebook"
               >
                 <FaFacebook className="w-5 h-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#"
                 className="text-gray-400 hover:text-teal-500 transition-colors"
                 aria-label="Twitter"
               >
                 <FaTwitter className="w-5 h-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#"
                 className="text-gray-400 hover:text-teal-500 transition-colors"
                 aria-label="Instagram"
               >
                 <FaInstagram className="w-5 h-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#"
                 className="text-gray-400 hover:text-teal-500 transition-colors"
                 aria-label="LinkedIn"
               >
                 <FaLinkedin className="w-5 h-5" />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -124,12 +125,12 @@ export default function Footer({ userRole }: FooterProps) {
             <ul className="space-y-2">
               {quickLinks.slice(0, 6).map((link, index) => (
                 <li key={index}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-gray-600 hover:text-teal-600 text-sm transition-colors block py-1"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -196,14 +197,14 @@ export default function Footer({ userRole }: FooterProps) {
             <div className="flex items-center">
               <span className="text-gray-500 text-sm mr-2">Made with</span>
               <FaHeart className="text-red-500 w-4 h-4 mr-2" />
-              <a
+              <Link
                 href="https://www.linkedin.com/in/sahadcse"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-500 text-sm hover:text-teal-600 transition-colors"
               >
                 by Restaurant Hub Team
-              </a>
+              </Link>
             </div>
           </div>
         </div>

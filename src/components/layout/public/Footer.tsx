@@ -109,7 +109,7 @@ const Footer = () => (
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             {footerData.appStores.map((store) => (
-              <a
+              <Link
                 key={store.name}
                 href={store.href}
                 className={`flex items-center bg-[#495057] hover:bg-[#4db6ac] transition duration-200 ease-in-out rounded-md px-3 py-2 group`}
@@ -130,7 +130,7 @@ const Footer = () => (
                     {store.bottomText}
                   </span>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -231,7 +231,7 @@ const Footer = () => (
           {/* Contact Logo */}
           <div className="flex space-x-3 mt-5">
             {footerData.socialLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 className={`w-9 h-9 rounded bg-[#495057] flex items-center justify-center text-white hover:bg-[#4db6ac] transition`}
@@ -240,7 +240,7 @@ const Footer = () => (
                 rel="noopener noreferrer"
               >
                 {getSocialIcon(link.icon)}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

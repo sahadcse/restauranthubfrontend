@@ -156,7 +156,7 @@ export default function Login() {
               <p className="text-sm mb-4 opacity-75">GET CONNECTED WITH</p>
               <div className="flex space-x-4">
                 {socialData.socialLinks.map((social) => (
-                  <a
+                  <Link
                     key={social.name}
                     href={social.href}
                     target="_blank"
@@ -166,7 +166,7 @@ export default function Login() {
                     title={`Follow us on ${social.name}`}
                   >
                     {getSocialIcon(social.icon)}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

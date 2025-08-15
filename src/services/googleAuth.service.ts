@@ -1,3 +1,5 @@
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
 interface GoogleOAuthConfig {
   clientId: string;
   redirectUri: string;
@@ -12,7 +14,9 @@ class GoogleAuthService {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/auth/google/config`
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+        }/auth/google/config`
       );
       const data = await response.json();
       this.config = data.google;
@@ -23,14 +27,14 @@ class GoogleAuthService {
     }
   }
 
-  async initiateGoogleLogin(): Promise<void> {
+  async initiateGoogleLogin(router: AppRouterInstance): Promise<void> {
     try {
       const config = await this.getConfig();
       const state = Math.random().toString(36).substring(2, 15);
-      
+
       // Store state for validation
       sessionStorage.setItem("oauth_state", state);
-      
+
       const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
       authUrl.searchParams.set("client_id", config.clientId);
       authUrl.searchParams.set("redirect_uri", config.redirectUri);
@@ -40,8 +44,8 @@ class GoogleAuthService {
       authUrl.searchParams.set("prompt", "consent");
       authUrl.searchParams.set("state", state);
 
-      // Redirect to Google OAuth
-      window.location.href = authUrl.toString();
+      // Use Next.js router for navigation
+      router.push(authUrl.toString());
     } catch (error) {
       console.error("Failed to initiate Google login:", error);
       throw error;

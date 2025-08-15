@@ -12,9 +12,11 @@ import { useRestaurants } from "../hooks/useRestaurants";
 import { useHeroSliders } from "../hooks/useHeroSliders";
 import { useCategories } from "../hooks/useCategories";
 import { useMenuItems } from "../hooks/useMenuItems";
+import { useRouter } from "next/navigation";
 import type { MenuItem } from "../lib/interfaces";
 
 export default function Home() {
+  const router = useRouter();
   const { token } = useAuth();
   const { addToCart } = useCart();
   const { restaurants, loading, error } = useRestaurants();
@@ -35,7 +37,7 @@ export default function Home() {
   } = useMenuItems({ featured: true, limit: 8 });
 
   const handleRetry = () => {
-    window.location.reload();
+    router.refresh();
   };
 
   const handleAddToCart = (item: MenuItem) => {

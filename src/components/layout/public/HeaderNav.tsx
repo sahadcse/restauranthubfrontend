@@ -394,34 +394,34 @@ const HeaderNav: React.FC<HeaderNavProps> = ({ setIsMobileMenuOpen }) => {
 
         {/* Social Icons */}
         <div className="mt-8 flex justify-center space-x-4">
-          <a
+          <Link
             href="#"
             aria-label="Facebook"
             className="p-2 bg-gray-700 text-white rounded hover:bg-blue-600"
           >
             <FaFacebookF />
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             aria-label="Twitter"
             className="p-2 bg-gray-700 text-white rounded hover:bg-sky-500"
           >
             <FaTwitter />
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             aria-label="Instagram"
             className="p-2 bg-gray-700 text-white rounded hover:bg-pink-600"
           >
             <FaInstagram />
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             aria-label="LinkedIn"
             className="p-2 bg-gray-700 text-white rounded hover:bg-blue-700"
           >
             <FaLinkedinIn />
-          </a>
+          </Link>
         </div>
       </div>
     </div>

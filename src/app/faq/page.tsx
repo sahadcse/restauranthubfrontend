@@ -5,6 +5,7 @@ import Header from "../../components/layout/public/Header";
 import Footer from "../../components/layout/public/Footer";
 import Breadcrumb, { BreadcrumbItem } from "../../components/ui/Breadcrumb";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 interface FAQItem {
   id: string;
@@ -565,7 +566,7 @@ export default function FAQ() {
             </div>
 
             <div className="mt-8">
-              <a
+              <Link
                 href="/contact"
                 className="bg-teal-500 text-white px-6 py-3 rounded-md hover:bg-teal-600 transition-colors inline-flex items-center"
               >
@@ -583,7 +584,7 @@ export default function FAQ() {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

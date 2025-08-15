@@ -108,6 +108,7 @@ export default function Register() {
   });
 
   const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError("");
 
     try {
@@ -185,7 +186,7 @@ export default function Register() {
               <p className="text-sm mb-4 opacity-75">GET CONNECTED WITH</p>
               <div className="flex space-x-4">
                 {socialData.socialLinks.map((social) => (
-                  <a
+                  <Link
                     key={social.name}
                     href={social.href}
                     target="_blank"
@@ -195,7 +196,7 @@ export default function Register() {
                     title={`Follow us on ${social.name}`}
                   >
                     {getSocialIcon(social.icon)}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

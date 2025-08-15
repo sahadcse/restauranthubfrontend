@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import MenuItemCard from "./MenuItemCard";
 import { MenuItem, MenuItemFilters } from "../lib/interfaces";
 import { useCart } from "../contexts/cartContext";
@@ -35,6 +36,7 @@ export default function MenuItemsSection({
   onAddToCart,
   onAddToWishlist,
 }: MenuItemsSectionProps) {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const { addToCart } = useCart();
 
@@ -146,7 +148,7 @@ export default function MenuItemsSection({
             </div>
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => router.refresh()}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-300"
               >
                 <svg

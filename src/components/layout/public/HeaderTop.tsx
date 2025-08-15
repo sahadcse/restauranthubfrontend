@@ -134,16 +134,16 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
             <div className="header-top-social">
               <ul className="m-0 p-0 list-none flex space-x-4">
                 <li className="inline-block">
-                  <a
+                  <Link
                     href={`tel:${phone}`}
                     className="text-gray-700 hover:text-blue-600 flex items-center"
                   >
                     <FiPhoneCall className="mr-1" />
                     {phone}
-                  </a>
+                  </Link>
                 </li>
                 <li className="inline-block">
-                  <a
+                  <Link
                     href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -151,7 +151,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                   >
                     <FaWhatsapp className="mr-1" />
                     {whatsapp}
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -213,7 +213,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                           : ""
                       }
                     >
-                      <a
+                      <Link
                         className="block px-4 py-1 text-gray-700 hover:bg-gray-100"
                         href="#"
                         onClick={(e) => {
@@ -222,7 +222,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                         }}
                       >
                         {lang.name}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -261,7 +261,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                           : ""
                       }
                     >
-                      <a
+                      <Link
                         className="block px-4 py-1 text-gray-700 hover:bg-gray-100"
                         href="#"
                         onClick={(e) => {
@@ -270,7 +270,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                         }}
                       >
                         {curr.name} {curr.symbol}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -497,7 +497,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                               : ""
                           }
                         >
-                          <a
+                          <Link
                             className="block px-4 py-1 text-gray-700 hover:bg-gray-100"
                             href="#"
                             onClick={(e) => {
@@ -507,7 +507,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                             }}
                           >
                             {lang.name}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -542,7 +542,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                               : ""
                           }
                         >
-                          <a
+                          <Link
                             className="block px-4 py-1 text-gray-700 hover:bg-gray-100"
                             href="#"
                             onClick={(e) => {
@@ -552,7 +552,7 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
                             }}
                           >
                             {curr.name} {curr.symbol}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>

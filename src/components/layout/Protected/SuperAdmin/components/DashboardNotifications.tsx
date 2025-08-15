@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { EndpointsAvailability } from "../types/dashboard.types";
 
 interface DashboardNotificationsProps {
@@ -11,6 +14,8 @@ export default function DashboardNotifications({
   loading,
   endpointsAvailable,
 }: DashboardNotificationsProps) {
+  const router = useRouter();
+
   const unavailableEndpoints = Object.entries(endpointsAvailable)
     .filter(([, available]) => !available)
     .map(([endpoint]) => endpoint);
@@ -30,7 +35,7 @@ export default function DashboardNotifications({
             </div>
             <div className="mt-4">
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => router.refresh()}
                 className="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded text-sm"
               >
                 Retry

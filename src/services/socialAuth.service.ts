@@ -1,3 +1,5 @@
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
 interface OAuthConfig {
   google: {
     clientId: string;
@@ -32,7 +34,7 @@ class SocialAuthService {
     }
   }
 
-  async initiateGoogleLogin(): Promise<void> {
+  async initiateGoogleLogin(router: AppRouterInstance): Promise<void> {
     try {
       const config = await this.getConfig();
       const state = Math.random().toString(36).substring(2, 15);
@@ -49,15 +51,15 @@ class SocialAuthService {
       authUrl.searchParams.set("prompt", "consent");
       authUrl.searchParams.set("state", state);
 
-      // Redirect to Google OAuth
-      window.location.href = authUrl.toString();
+      // Use Next.js router for navigation
+      router.push(authUrl.toString());
     } catch (error) {
       console.error("Failed to initiate Google login:", error);
       throw error;
     }
   }
 
-  async initiateFacebookLogin(): Promise<void> {
+  async initiateFacebookLogin(router: AppRouterInstance): Promise<void> {
     try {
       const config = await this.getConfig();
       const state = Math.random().toString(36).substring(2, 15);
@@ -72,8 +74,8 @@ class SocialAuthService {
       authUrl.searchParams.set("scope", config.facebook.scope);
       authUrl.searchParams.set("state", state);
 
-      // Redirect to Facebook OAuth
-      window.location.href = authUrl.toString();
+      // Use Next.js router for navigation
+      router.push(authUrl.toString());
     } catch (error) {
       console.error("Failed to initiate Facebook login:", error);
       throw error;
@@ -87,5 +89,6 @@ export const socialAuthService = new SocialAuthService();
 export const googleAuthService = {
   getConfig: () =>
     socialAuthService.getConfig().then((config) => config.google),
-  initiateGoogleLogin: () => socialAuthService.initiateGoogleLogin(),
+  initiateGoogleLogin: (router: AppRouterInstance) =>
+    socialAuthService.initiateGoogleLogin(router),
 };

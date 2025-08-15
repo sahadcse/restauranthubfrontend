@@ -5,12 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { MenuItem } from "../lib/interfaces";
 import { useCart } from "../contexts/cartContext";
+import { useWishlist } from "../contexts/wishlistContext";
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
   showRestaurant?: boolean;
   onAddToCart?: (item: MenuItem) => void;
   onAddToWishlist?: (item: MenuItem) => void;
+  isInWishlist?: boolean;
 }
 
 export default function MenuItemCard({
@@ -18,9 +20,12 @@ export default function MenuItemCard({
   showRestaurant = false,
   onAddToCart,
   onAddToWishlist,
+  isInWishlist: propIsInWishlist,
 }: MenuItemCardProps) {
   const { addToCart } = useCart();
+  const { isHydrated } = useWishlist();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const primaryImage =
     menuItem.images?.find((img) => img.isPrimary)?.url ||
     "/placeholder-food.jpg";
@@ -73,6 +78,22 @@ export default function MenuItemCard({
     }
   };
 
+  const handleWishlistToggle = async () => {
+    if (isTogglingWishlist || !onAddToWishlist) return;
+
+    setIsTogglingWishlist(true);
+    try {
+      onAddToWishlist(menuItem);
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+    } finally {
+      setIsTogglingWishlist(false);
+    }
+  };
+
+  // Use prop value if provided, otherwise fallback to false during SSR
+  const isInWishlist = isHydrated ? propIsInWishlist ?? false : false;
+
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group">
       {/* Image Container */}
@@ -104,13 +125,24 @@ export default function MenuItemCard({
         {/* Wishlist Button */}
         {onAddToWishlist && (
           <button
-            onClick={() => onAddToWishlist(menuItem)}
-            className="absolute top-3 right-3 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 transition-colors duration-200"
-            aria-label="Add to wishlist"
+            onClick={handleWishlistToggle}
+            disabled={isTogglingWishlist || !isHydrated}
+            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+              isInWishlist
+                ? "bg-red-500 text-white hover:bg-red-600"
+                : "bg-white/80 hover:bg-white text-gray-600 hover:text-red-500"
+            } ${
+              isTogglingWishlist || !isHydrated
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+            aria-label={
+              isInWishlist ? "Remove from wishlist" : "Add to wishlist"
+            }
           >
             <svg
               className="w-4 h-4"
-              fill="none"
+              fill={isInWishlist ? "currentColor" : "none"}
               stroke="currentColor"
               viewBox="0 0 24 24"
             >

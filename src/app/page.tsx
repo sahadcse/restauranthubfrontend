@@ -13,6 +13,7 @@ import { useHeroSliders } from "../hooks/useHeroSliders";
 import { useCategories } from "../hooks/useCategories";
 import { useMenuItems } from "../hooks/useMenuItems";
 import { useRouter } from "next/navigation";
+import { useWishlist, WishlistItem } from "../contexts/wishlistContext";
 import type { MenuItem } from "../lib/interfaces";
 
 export default function Home() {
@@ -34,7 +35,8 @@ export default function Home() {
     menuItems: featuredMenuItems,
     loading: menuItemsLoading,
     error: menuItemsError,
-  } = useMenuItems({ featured: true, limit: 8 });
+  } = useMenuItems({ featured: true, limit: 4 });
+  const { addToWishlist, removeFromWishlist, isItemInWishlist } = useWishlist();
 
   const handleRetry = () => {
     router.refresh();
@@ -52,8 +54,25 @@ export default function Home() {
   };
 
   const handleAddToWishlist = (item: MenuItem) => {
-    // TODO: Implement add to wishlist functionality
-    console.log("Add to wishlist:", item);
+    try {
+      const wishlistItem: WishlistItem = {
+        id: parseInt(item.id),
+        restaurant_id: parseInt(item.restaurantId),
+        name: item.title,
+        price: item.finalPrice,
+        image_url: item.images?.[0]?.url || "/placeholder-food.jpg",
+        description: item.description,
+      };
+
+      if (isItemInWishlist(parseInt(item.id))) {
+        removeFromWishlist(parseInt(item.id));
+      } else {
+        addToWishlist(wishlistItem);
+      }
+    } catch (error) {
+      console.error("Failed to toggle wishlist item:", error);
+      // Optional: Show error notification
+    }
   };
 
   return (

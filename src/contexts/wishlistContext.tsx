@@ -23,6 +23,7 @@ interface WishlistContextType {
   addToWishlist: (item: WishlistItem) => void;
   removeFromWishlist: (id: number) => void;
   isItemInWishlist: (id: number) => boolean;
+  isHydrated: boolean;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(
@@ -30,21 +31,37 @@ const WishlistContext = createContext<WishlistContextType | undefined>(
 );
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlist, setWishlist] = useState<WishlistItem[]>(() => {
-    // Load wishlist from localStorage on initial render
-    if (typeof window !== "undefined") {
-      const savedWishlist = localStorage.getItem("wishlist");
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    }
-    return [];
-  });
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Save wishlist to localStorage whenever it changes
+  // Load wishlist from localStorage after component mounts (client-side only)
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      try {
+        const savedWishlist = localStorage.getItem("wishlist");
+        if (savedWishlist) {
+          const parsedWishlist = JSON.parse(savedWishlist);
+          setWishlist(Array.isArray(parsedWishlist) ? parsedWishlist : []);
+        }
+      } catch (error) {
+        console.error("Error loading wishlist from localStorage:", error);
+        setWishlist([]);
+      } finally {
+        setIsHydrated(true);
+      }
     }
-  }, [wishlist]);
+  }, []);
+
+  // Save wishlist to localStorage whenever it changes (only after hydration)
+  useEffect(() => {
+    if (isHydrated && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      } catch (error) {
+        console.error("Error saving wishlist to localStorage:", error);
+      }
+    }
+  }, [wishlist, isHydrated]);
 
   const addToWishlist = (item: WishlistItem) => {
     setWishlist((prev) => {
@@ -67,7 +84,13 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <WishlistContext.Provider
-      value={{ wishlist, addToWishlist, removeFromWishlist, isItemInWishlist }}
+      value={{
+        wishlist,
+        addToWishlist,
+        removeFromWishlist,
+        isItemInWishlist,
+        isHydrated,
+      }}
     >
       {children}
     </WishlistContext.Provider>

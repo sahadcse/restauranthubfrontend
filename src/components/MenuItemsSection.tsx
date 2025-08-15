@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import MenuItemCard from "./MenuItemCard";
 import { MenuItem, MenuItemFilters } from "../lib/interfaces";
 import { useCart } from "../contexts/cartContext";
+import { useWishlist, WishlistItem } from "../contexts/wishlistContext";
 
 interface MenuItemsSectionProps {
   title: string;
@@ -39,6 +40,8 @@ export default function MenuItemsSection({
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isItemInWishlist, isHydrated } =
+    useWishlist();
 
   const filterOptions = [
     { key: "all", label: "All Items" },
@@ -84,6 +87,32 @@ export default function MenuItemsSection({
       }
     } catch (error) {
       console.error("Error adding item to cart:", error);
+    }
+  };
+
+  const handleWishlistToggle = (item: MenuItem) => {
+    try {
+      if (onAddToWishlist) {
+        onAddToWishlist(item);
+      } else {
+        // Default wishlist handling
+        const wishlistItem: WishlistItem = {
+          id: parseInt(item.id),
+          restaurant_id: parseInt(item.restaurantId),
+          name: item.title,
+          price: item.finalPrice,
+          image_url: item.images?.[0]?.url || "/placeholder-food.jpg",
+          description: item.description,
+        };
+
+        if (isItemInWishlist(parseInt(item.id))) {
+          removeFromWishlist(parseInt(item.id));
+        } else {
+          addToWishlist(wishlistItem);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist item:", error);
     }
   };
 
@@ -299,14 +328,17 @@ export default function MenuItemsSection({
         )}
 
         {/* Menu Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {menuItems.map((menuItem) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {menuItems.slice(0, 4).map((menuItem) => (
             <MenuItemCard
               key={menuItem.id}
               menuItem={menuItem}
               showRestaurant={showRestaurant}
               onAddToCart={handleAddToCart}
-              onAddToWishlist={onAddToWishlist}
+              onAddToWishlist={handleWishlistToggle}
+              isInWishlist={
+                isHydrated ? isItemInWishlist(parseInt(menuItem.id)) : false
+              }
             />
           ))}
         </div>

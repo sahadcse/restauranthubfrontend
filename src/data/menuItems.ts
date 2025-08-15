@@ -2,7 +2,6 @@ import { MenuItem } from "../lib/interfaces";
 // import { Tag } from "../lib/interfaces";
 import { InventoryStatus, WeightUnit } from "../lib/interfaces/enums";
 
-
 export const demoMenuItems: MenuItem[] = [
   {
     id: "1",
@@ -335,7 +334,7 @@ export const demoMenuItems: MenuItem[] = [
     images: [
       {
         id: "img-5",
-        url: "/images/menu/beef-burger.jpg",
+        url: "https://images.unsplash.com/photo-1591970078371-c8f2a31f3a77",
         altText: "Beef Burger Deluxe",
         isPrimary: true,
         sortOrder: 1,
@@ -395,7 +394,7 @@ export const demoMenuItems: MenuItem[] = [
     images: [
       {
         id: "img-6",
-        url: "/images/menu/orange-juice.jpg",
+        url: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845",
         altText: "Fresh Orange Juice",
         isPrimary: true,
         sortOrder: 1,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaFacebookF } from "react-icons/fa";
 import { socialAuthService } from "../../services/socialAuth.service";
 
@@ -16,11 +17,12 @@ export default function FacebookLoginButton({
   disabled = false,
 }: FacebookLoginButtonProps) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleFacebookLogin = async () => {
     setLoading(true);
     try {
-      await socialAuthService.initiateFacebookLogin();
+      await socialAuthService.initiateFacebookLogin(router);
     } catch (error) {
       console.error("Facebook login failed:", error);
       const errorMessage =

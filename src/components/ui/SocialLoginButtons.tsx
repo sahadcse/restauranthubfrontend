@@ -1,7 +1,7 @@
 "use client";
 
 import GoogleLoginButton from "./GoogleLoginButton";
-import FacebookLoginButton from "./FacebookLoginButton";
+// import FacebookLoginButton from "./FacebookLoginButton";
 
 interface SocialLoginButtonsProps {
   onError?: (error: string) => void;
@@ -17,7 +17,7 @@ export default function SocialLoginButtons({
   return (
     <div className={`space-y-3 ${className}`}>
       <GoogleLoginButton onError={onError} disabled={disabled} />
-      <FacebookLoginButton onError={onError} disabled={disabled} />
+      {/* <FacebookLoginButton onError={onError} disabled={disabled} /> */}
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
   FaCcStripe,
   FaCcAmex,
   FaCreditCard,
+  FaGithub
 } from "react-icons/fa";
 import { FaLocationDot, FaPhone, FaEnvelope } from "react-icons/fa6";
 
@@ -32,6 +33,8 @@ const getSocialIcon = (icon: string) => {
       return <FaLinkedinIn />;
     case "instagram":
       return <FaInstagram />;
+    case "github":
+      return <FaGithub />;
     default:
       return null;
   }
@@ -233,6 +236,8 @@ const Footer = () => (
                 href={link.href}
                 className={`w-9 h-9 rounded bg-[#495057] flex items-center justify-center text-white hover:bg-[#4db6ac] transition`}
                 aria-label={link.name}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 {getSocialIcon(link.icon)}
               </a>
@@ -356,7 +361,7 @@ const Footer = () => (
 
     {/* Copyright Section */}
     <div
-      className={`bg-[${theme.lightBg}] border-t border-${theme.lightBorder}`}
+      className={`bg-[${theme.lightBg}] border-t border-${theme.lightBorder} md:flex`}
     >
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between py-4">
         <p
@@ -372,25 +377,6 @@ const Footer = () => (
           </span>
           .
         </p>
-        <div className="flex items-center space-x-2 mt-4 md:mt-0">
-          {/* Admin and Restaurant Links */}
-          {footerData.adminLinks.map((link, index) => (
-            <React.Fragment key={link.name}>
-              {index > 0 && (
-                <span className={`text-${theme.textLight}`}>|</span>
-              )}
-              <Link
-                href={link.href}
-                className={`text-[${theme.primary}] underline hover:text-[${theme.primaryHover}] transition text-sm`}
-              >
-                {link.name}
-              </Link>
-              {index === footerData.adminLinks.length - 1 && (
-                <span className={`text-${theme.textLight}`}>|</span>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
       </div>
 
       {/* Payment Methods Bar */}

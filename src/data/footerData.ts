@@ -89,16 +89,16 @@ const footerData = {
 
   // Social Media Links
   socialLinks: [
-    { name: "Facebook", href: "#", icon: "facebook" },
-    { name: "Twitter", href: "#", icon: "twitter" },
-    { name: "LinkedIn", href: "#", icon: "linkedin" },
-    { name: "Instagram", href: "#", icon: "instagram" },
+    { name: "Facebook", href: "https://facebook.com/sahadcse", icon: "facebook" },
+    { name: "Twitter", href: "https://twitter.com/sahadcse", icon: "twitter" },
+    { name: "LinkedIn", href: "https://linkedin.com/in/sahadcse", icon: "linkedin" },
+    { name: "GitHub", href: "https://github.com/sahadcse", icon: "github" },
   ],
 
   // Copyright
   copyright: {
     prefix: "Copyright © ",
-    brand: "Bismillah",
+    brand: "SAHAD",
     text: " all rights reserved. Powered by ",
   },
 

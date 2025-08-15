@@ -7,6 +7,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
 
@@ -46,201 +47,198 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Memoized auth check to prevent unnecessary re-renders
+  const isAuthenticated = token !== null && user !== null;
+
+  // Initialize auth state only once on mount
   useEffect(() => {
     const initializeAuth = async () => {
-      if (typeof window !== "undefined") {
-        const storedToken = localStorage.getItem("token");
-        const storedUserData = localStorage.getItem("userData");
+      if (typeof window === "undefined") {
+        setLoading(false);
+        return;
+      }
 
-        if (storedToken) {
-          // First try to restore from stored user data
-          if (storedUserData) {
-            try {
-              const parsedUserData = JSON.parse(storedUserData);
-              setTokenState(storedToken);
-              setUserState(parsedUserData);
-              console.log(
-                "Restored user data from localStorage:",
-                parsedUserData
-              );
-            } catch (error) {
-              console.error("Error parsing stored user data:", error);
-              // Fallback to token validation
-              const validation = await authService.validateToken(storedToken);
-              if (validation.isValid && validation.user) {
-                setTokenState(storedToken);
-                setUserState(validation.user);
-                localStorage.setItem(
-                  "userData",
-                  JSON.stringify(validation.user)
-                );
-              } else {
-                localStorage.removeItem("token");
-                localStorage.removeItem("userData");
-              }
-            }
+      const storedToken = localStorage.getItem("token");
+      const storedUserData = localStorage.getItem("userData");
+
+      if (!storedToken) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        if (storedUserData) {
+          const parsedUserData = JSON.parse(storedUserData);
+          setTokenState(storedToken);
+          setUserState(parsedUserData);
+        } else {
+          // Fallback to token validation
+          const validation = await authService.validateToken(storedToken);
+          if (validation.isValid && validation.user) {
+            setTokenState(storedToken);
+            setUserState(validation.user);
+            localStorage.setItem("userData", JSON.stringify(validation.user));
           } else {
-            // Fallback to token validation if no stored user data
-            const validation = await authService.validateToken(storedToken);
-            if (validation.isValid && validation.user) {
-              setTokenState(storedToken);
-              setUserState(validation.user);
-              localStorage.setItem("userData", JSON.stringify(validation.user));
-            } else {
-              localStorage.removeItem("token");
-            }
+            localStorage.removeItem("token");
           }
         }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
       }
+
       setLoading(false);
     };
 
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
-    try {
-      setLoading(true);
-      const response = await authApi.login(
-        credentials.email,
-        credentials.password
-      );
-
-      // Log the response to debug
-      console.log("Login response:", response);
-
-      // Handle the API response structure - check if it matches expected format
-      if (!response.user || !response.tokens) {
-        throw new Error("Invalid response format from server");
-      }
-
-      const { user: User, tokens } = response;
-
-      // Validate token before setting it
-      if (!tokens.accessToken || typeof tokens.accessToken !== "string") {
-        throw new Error("Invalid access token received from server");
-      }
-
-      // Set token and user state directly
-      setTokenState(tokens.accessToken);
-      setUserState(User);
-      console.log("User data:", User);
-
-      // Store tokens AND complete user data in localStorage
-      localStorage.setItem("token", tokens.accessToken);
-      localStorage.setItem("userData", JSON.stringify(User));
-      if (tokens.refreshToken) {
-        localStorage.setItem("refreshToken", tokens.refreshToken);
-      }
-
-      // Redirect based on user role
-      const redirectPath = redirectManager.getPostLoginPath(User.role);
-      console.log("Redirecting to:", redirectPath);
-      router.push(redirectPath);
-    } catch (error) {
-      console.error("Login error:", error);
-
-      // Enhanced error handling
-      let errorMessage = "Login failed. Please try again.";
-
-      if (error instanceof Error) {
-        if (error.message.includes("Invalid response")) {
-          errorMessage = "Server response error. Please contact support.";
-        } else if (
-          error.message.includes("401") ||
-          error.message.includes("Unauthorized")
-        ) {
-          errorMessage = "Invalid email or password.";
-        } else if (error.message.includes("400")) {
-          errorMessage = "Please check your email and password.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-
-      throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (
-    userData: UserRegistrationData,
-    role: UserRole.CUSTOMER | UserRole.RESTAURANT_OWNER = UserRole.CUSTOMER
-  ) => {
-    try {
-      setLoading(true);
-      const response = await authApi.register(userData, role);
-
-      // Handle successful registration
-      if (response.success && response.data) {
-        setTokenState(response.data.token);
-        setUserState(response.data.user);
-
-        localStorage.setItem("token", response.data.token);
-
-        // Redirect based on user role
-        const redirectPath = redirectManager.getPostRegistrationPath(
-          response.data.user.role
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      try {
+        setLoading(true);
+        const response = await authApi.login(
+          credentials.email,
+          credentials.password
         );
-        router.push(redirectPath);
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const logout = () => {
+        if (!response.user || !response.tokens) {
+          throw new Error("Invalid response format from server");
+        }
+
+        const { user: User, tokens } = response;
+
+        if (!tokens.accessToken || typeof tokens.accessToken !== "string") {
+          throw new Error("Invalid access token received from server");
+        }
+
+        // Update state atomically
+        setTokenState(tokens.accessToken);
+        setUserState(User);
+
+        // Update localStorage
+        localStorage.setItem("token", tokens.accessToken);
+        localStorage.setItem("userData", JSON.stringify(User));
+        if (tokens.refreshToken) {
+          localStorage.setItem("refreshToken", tokens.refreshToken);
+        }
+
+        // Navigate without page reload
+        const redirectPath = redirectManager.getPostLoginPath(User.role);
+        router.push(redirectPath);
+      } catch (error) {
+        console.error("Login error:", error);
+
+        let errorMessage = "Login failed. Please try again.";
+        if (error instanceof Error) {
+          if (error.message.includes("Invalid response")) {
+            errorMessage = "Server response error. Please contact support.";
+          } else if (
+            error.message.includes("401") ||
+            error.message.includes("Unauthorized")
+          ) {
+            errorMessage = "Invalid email or password.";
+          } else if (error.message.includes("400")) {
+            errorMessage = "Please check your email and password.";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        throw new Error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const logout = useCallback(() => {
+    // Clear state immediately
     setTokenState(null);
     setUserState(null);
+
+    // Clear localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
     localStorage.removeItem("refreshToken");
-    router.push(redirectManager.getRedirectPath("unauthenticated"));
-  };
 
-  const setToken = (newToken: string | null) => {
-    setTokenState(newToken);
+    // Navigate without page reload
+    router.push("/auth/login");
+  }, [router]);
+
+  const register = useCallback(
+    async (
+      userData: UserRegistrationData,
+      role: UserRole.CUSTOMER | UserRole.RESTAURANT_OWNER = UserRole.CUSTOMER
+    ) => {
+      try {
+        setLoading(true);
+        const response = await authApi.register(userData, role);
+
+        if (response.success && response.data) {
+          setTokenState(response.data.token);
+          setUserState(response.data.user);
+
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("userData", JSON.stringify(response.data.user));
+
+          const redirectPath = redirectManager.getPostRegistrationPath(
+            response.data.user.role
+          );
+          router.push(redirectPath);
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const setToken = useCallback((newToken: string | null) => {
     if (newToken && typeof newToken === "string") {
-      localStorage.setItem("token", newToken);
       const userData = authService.decodeTokenToUser(newToken);
       if (userData) {
+        setTokenState(newToken);
         setUserState(userData);
+        localStorage.setItem("token", newToken);
         localStorage.setItem("userData", JSON.stringify(userData));
       } else {
         console.error("Failed to decode user data from token");
-        // Clear invalid token
         localStorage.removeItem("token");
         localStorage.removeItem("userData");
         setTokenState(null);
+        setUserState(null);
       }
     } else {
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
+      setTokenState(null);
       setUserState(null);
     }
-  };
+  }, []);
 
-  const setUser = (newUser: User | null) => {
+  const setUser = useCallback((newUser: User | null) => {
     setUserState(newUser);
-  };
+    if (newUser) {
+      localStorage.setItem("userData", JSON.stringify(newUser));
+    }
+  }, []);
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = useCallback((userData: Partial<User>) => {
     setUserState((prev) => {
       if (prev) {
         const updatedUser = { ...prev, ...userData };
-        // Update localStorage with the new user data
         localStorage.setItem("userData", JSON.stringify(updatedUser));
         return updatedUser;
       }
       return null;
     });
-  };
-
-  const isAuthenticated = !!token && !!user;
+  }, []);
 
   return (
     <AuthContext.Provider

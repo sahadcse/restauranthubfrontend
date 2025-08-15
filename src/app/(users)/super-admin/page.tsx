@@ -1,9 +1,12 @@
-function SuperAdminPage() {
-  return (
-    <div>
-      <h1>Super Admin Dashboard</h1>
-    </div>
-  );
-}
+import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-export default SuperAdminPage;
+export const metadata: Metadata = {
+  title: "Super Admin Dashboard | Restaurant Hub",
+  description:
+    "Super admin dashboard for managing the restaurant e-commerce platform",
+};
+
+export default function SuperAdminPage() {
+  redirect("/super-admin/dashboard");
+}

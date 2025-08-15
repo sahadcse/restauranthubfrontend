@@ -30,11 +30,33 @@ class RedirectManager {
     return this.config[scenario] || this.config.fallback;
   }
 
-  getRoleDefaultPath(role: UserRole | string): string {
+  getRoleDefaultPath(role: UserRole | string | null | undefined): string {
+    // Handle null, undefined, or empty string cases
+    if (!role || role === "") {
+      console.log(
+        `No valid role provided (${role}), returning fallback:`,
+        this.config.fallback
+      );
+      return this.config.fallback;
+    }
+
     // Handle both enum values and string values from backend
     const roleKey = typeof role === "string" ? (role as UserRole) : role;
+
+    // Check if the roleKey is a valid UserRole
+    if (!Object.values(UserRole).includes(roleKey)) {
+      console.log(
+        `Invalid role provided (${role}), returning fallback:`,
+        this.config.fallback
+      );
+      return this.config.fallback;
+    }
+
     const path = this.config.roleDefaults[roleKey] || this.config.fallback;
-    console.log(`Getting default path for role ${role} (normalized: ${roleKey}):`, path);
+    console.log(
+      `Getting default path for role ${role} (normalized: ${roleKey}):`,
+      path
+    );
     return path;
   }
 
@@ -49,12 +71,18 @@ class RedirectManager {
       return { shouldRedirect: false, redirectPath: null };
     }
 
-    if (!userRole || !allowedRoles.includes(userRole)) {
+    // If user has no role (logged out), redirect to login
+    if (!userRole) {
       return {
         shouldRedirect: true,
-        redirectPath: userRole
-          ? this.getRoleDefaultPath(userRole)
-          : this.config.fallback,
+        redirectPath: this.config.unauthenticated,
+      };
+    }
+
+    if (!allowedRoles.includes(userRole)) {
+      return {
+        shouldRedirect: true,
+        redirectPath: this.getRoleDefaultPath(userRole),
       };
     }
 
@@ -62,14 +90,14 @@ class RedirectManager {
   }
 
   // Utility method for registration redirects
-  getPostRegistrationPath(role: UserRole | string): string {
+  getPostRegistrationPath(role: UserRole | string | null | undefined): string {
     const path = this.getRoleDefaultPath(role);
     console.log(`Post-registration redirect for role ${role}:`, path);
     return path;
   }
 
   // Utility method for login redirects
-  getPostLoginPath(role: UserRole | string): string {
+  getPostLoginPath(role: UserRole | string | null | undefined): string {
     return this.getRoleDefaultPath(role);
   }
 

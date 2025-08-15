@@ -72,10 +72,10 @@ export default function Footer({ userRole }: FooterProps) {
 
   return (
     <footer className="bg-white border-t border-gray-200 mt-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* Company Info */}
-          <div>
+          <div className="sm:col-span-2 lg:col-span-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Restaurant Hub
             </h3>
@@ -126,7 +126,7 @@ export default function Footer({ userRole }: FooterProps) {
                 <li key={index}>
                   <a
                     href={link.href}
-                    className="text-gray-600 hover:text-teal-600 text-sm transition-colors"
+                    className="text-gray-600 hover:text-teal-600 text-sm transition-colors block py-1"
                   >
                     {link.name}
                   </a>
@@ -142,15 +142,15 @@ export default function Footer({ userRole }: FooterProps) {
             </h3>
             <div className="space-y-3">
               <div className="flex items-center text-gray-600 text-sm">
-                <FaPhone className="w-4 h-4 mr-3 text-teal-500" />
+                <FaPhone className="w-4 h-4 mr-3 text-teal-500 flex-shrink-0" />
                 <span>+1 (555) 123-4567</span>
               </div>
               <div className="flex items-center text-gray-600 text-sm">
-                <FaEnvelope className="w-4 h-4 mr-3 text-teal-500" />
-                <span>support@restauranthub.com</span>
+                <FaEnvelope className="w-4 h-4 mr-3 text-teal-500 flex-shrink-0" />
+                <span className="break-all">support@restauranthub.com</span>
               </div>
               <div className="flex items-start text-gray-600 text-sm">
-                <FaMapMarkerAlt className="w-4 h-4 mr-3 text-teal-500 mt-0.5" />
+                <FaMapMarkerAlt className="w-4 h-4 mr-3 text-teal-500 mt-0.5 flex-shrink-0" />
                 <span>
                   123 Business Ave
                   <br />
@@ -188,12 +188,12 @@ export default function Footer({ userRole }: FooterProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-200 mt-8 pt-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm">
+        <div className="border-t border-gray-200 mt-6 sm:mt-8 pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <p className="text-gray-500 text-sm text-center sm:text-left">
               © {currentYear} Restaurant Hub. All rights reserved.
             </p>
-            <div className="flex items-center mt-4 sm:mt-0">
+            <div className="flex items-center">
               <span className="text-gray-500 text-sm mr-2">Made with</span>
               <FaHeart className="text-red-500 w-4 h-4 mr-2" />
               <a

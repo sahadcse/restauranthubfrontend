@@ -8,7 +8,7 @@ import Footer from "@/src/components/layout/Protected/Footer";
 import { useAuth } from "@/src/contexts/authContext";
 import { UserRole } from "@/src/lib/interfaces/enums";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 // Route-to-role mapping for different sections
 const getRequiredRoles = (pathname: string): string[] => {
@@ -32,19 +32,32 @@ const getRequiredRoles = (pathname: string): string[] => {
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const requiredRoles = useMemo(() => getRequiredRoles(pathname), [pathname]);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
 
   return (
     <ProtectedRoute requiredRoles={requiredRoles}>
       {user && (
         <div className="flex h-screen bg-gray-50">
-          <Sidebar userRole={user.role} />
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Header user={user} onLogout={logout} />
+          <Sidebar
+            userRole={user.role}
+            isMobileOpen={isMobileSidebarOpen}
+            onMobileToggle={toggleMobileSidebar}
+          />
+          <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
+            <Header
+              user={user}
+              onLogout={logout}
+              onMobileMenuToggle={toggleMobileSidebar}
+            />
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
               <div className="min-h-full flex flex-col">
-                <div className="flex-1 p-6">{children}</div>
+                <div className="flex-1 p-3 sm:p-6">{children}</div>
                 <Footer userRole={user.role} />
               </div>
             </main>

@@ -16,14 +16,15 @@ export interface PermissionCheckResult {
 }
 
 class AuthService {
-  private validateTokenStructure(token: string): boolean {
-    try {
-      // Add type check for token
-      if (typeof token !== "string") {
-        console.error("Token must be a string, received:", typeof token);
-        return false;
-      }
+  // Cache for decoded tokens to prevent repeated parsing
+  private tokenCache = new Map<string, User | null>();
 
+  private validateTokenStructure(token: string): boolean {
+    if (typeof token !== "string" || !token.trim()) {
+      return false;
+    }
+
+    try {
       const parts = token.split(".");
       if (parts.length !== 3) return false;
 
@@ -42,17 +43,8 @@ class AuthService {
     }
 
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const currentTime = Date.now() / 1000;
-
-      if (payload.exp && payload.exp < currentTime) {
-        return { isValid: false, user: null, error: "Token expired" };
-      }
-
-      // Skip backend validation since endpoint doesn't exist
-      // Just use client-side validation for now
       const user = this.decodeTokenToUser(token);
-      return { isValid: true, user };
+      return { isValid: !!user, user };
     } catch (error) {
       return {
         isValid: false,
@@ -64,30 +56,23 @@ class AuthService {
   }
 
   decodeTokenToUser(token: string): User | null {
+    if (!token || typeof token !== "string") {
+      return null;
+    }
+
+    // Check cache first
+    if (this.tokenCache.has(token)) {
+      return this.tokenCache.get(token) || null;
+    }
+
     try {
-      // Add type check for token
-      if (typeof token !== "string") {
-        console.error(
-          "decodeTokenToUser: Token must be a string, received:",
-          typeof token,
-          token
-        );
-        return null;
-      }
-
-      if (!token || token.trim() === "") {
-        console.error("decodeTokenToUser: Token is empty or null");
-        return null;
-      }
-
       const parts = token.split(".");
       if (parts.length !== 3) {
-        console.error("decodeTokenToUser: Invalid JWT format");
         return null;
       }
 
       const payload = JSON.parse(atob(parts[1]));
-      return {
+      const user: User = {
         id: payload.userId || payload.id,
         email: payload.email,
         role: payload.role as UserRole,
@@ -115,8 +100,13 @@ class AuthService {
         createdAt: payload.createdAt || new Date().toISOString(),
         updatedAt: payload.updatedAt || new Date().toISOString(),
       };
+
+      // Cache the result
+      this.tokenCache.set(token, user);
+      return user;
     } catch (error) {
       console.error("Error decoding token:", error);
+      this.tokenCache.set(token, null);
       return null;
     }
   }
@@ -125,6 +115,7 @@ class AuthService {
     userRole: UserRole | undefined,
     requiredRoles?: string[]
   ): PermissionCheckResult {
+    // Early return for no role requirements
     if (!requiredRoles || requiredRoles.length === 0) {
       return {
         hasPermission: true,
@@ -134,19 +125,31 @@ class AuthService {
       };
     }
 
-    const hasPermission = userRole && requiredRoles.includes(userRole);
-    const shouldRedirect = !hasPermission;
-    const redirectPath =
-      shouldRedirect && userRole
-        ? redirectManager.getRoleDefaultPath(userRole)
-        : null;
+    // User not authenticated
+    if (!userRole) {
+      return {
+        hasPermission: false,
+        userRole: undefined,
+        shouldRedirect: true,
+        redirectPath: redirectManager.getRedirectPath("unauthenticated"),
+      };
+    }
+
+    const hasPermission = requiredRoles.includes(userRole);
 
     return {
-      hasPermission: !!hasPermission,
+      hasPermission,
       userRole,
-      shouldRedirect,
-      redirectPath,
+      shouldRedirect: !hasPermission,
+      redirectPath: !hasPermission
+        ? redirectManager.getRoleDefaultPath(userRole)
+        : null,
     };
+  }
+
+  // Clear token cache (useful for logout)
+  clearCache(): void {
+    this.tokenCache.clear();
   }
 }
 

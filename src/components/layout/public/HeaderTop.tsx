@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import headerData from "../../../data/headerData.json";
-import HeaderNav from "./HeaderNav"; // Import HeaderNav
-// import { useWishlist } from "../lib/wishlistContext"; // Import useWishlist
+import HeaderNav from "./HeaderNav";
+import { useAuth } from "../../../contexts/authContext";
+import { redirectManager } from "../../../lib/services/redirectManager";
 import {
   FiPhoneCall,
   FiUser,
@@ -13,6 +14,10 @@ import {
   FiChevronDown,
   FiChevronUp,
   FiX,
+  FiLogOut,
+  FiSettings,
+  FiUserPlus,
+  FiLogIn,
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -42,43 +47,70 @@ const topMessage: string = headerData.topMessage;
 const HeaderTop: React.FC<HeaderTopProps> = ({
   onCartToggle,
   cartItemCount,
-  wishlistItemCount, // Destructure wishlist count
+  wishlistItemCount,
 }) => {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isCurrOpen, setIsCurrOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState<Language>(languages[0]);
   const [selectedCurr, setSelectedCurr] = useState<Currency>(currencies[0]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // Add mounted state
+  const [isAuthDropdownOpen, setIsAuthDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const handleLangSelect = (lang: Language) => {
-    setSelectedLang(lang);
-    setIsLangOpen(false);
-  };
+  // Get auth state
+  const { isAuthenticated, user, logout } = useAuth();
 
-  const handleCurrSelect = (curr: Currency) => {
-    setSelectedCurr(curr);
-    setIsCurrOpen(false);
-  };
-
-  // Effect to handle body scroll lock
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = ""; // Revert to default
+  // Memoize dashboard path to prevent recalculation
+  const dashboardPath = useMemo(() => {
+    if (isAuthenticated && user?.role) {
+      return redirectManager.getRoleDefaultPath(user.role);
     }
+    return "/";
+  }, [isAuthenticated, user?.role]);
 
-    // Cleanup function to ensure style is removed if component unmounts while open
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]); // Dependency array ensures this runs when isMobileMenuOpen changes
-
-  // Set mounted to true only on the client
+  // Single useEffect for mounting
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle body scroll lock for mobile menu
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  // Memoized handlers to prevent re-renders
+  const handleLangSelect = useCallback((lang: Language) => {
+    setSelectedLang(lang);
+    setIsLangOpen(false);
+  }, []);
+
+  const handleCurrSelect = useCallback((curr: Currency) => {
+    setSelectedCurr(curr);
+    setIsCurrOpen(false);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    setIsAuthDropdownOpen(false);
+    logout();
+  }, [logout]);
+
+  const handleAuthDropdownToggle = useCallback(() => {
+    setIsAuthDropdownOpen(!isAuthDropdownOpen);
+  }, [isAuthDropdownOpen]);
+
+  const closeAuthDropdown = useCallback(() => {
+    setIsAuthDropdownOpen(false);
+  }, []);
+
+  // Close dropdown when authentication state changes to unauthenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setIsAuthDropdownOpen(false);
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="header-top bg-white py-2 text-sm border-b lg:border-none lg:bg-gray-100 lg:py-1 lg:static sticky top-0 z-50 lg:z-auto pt-safe lg:pt-2">
@@ -246,43 +278,129 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
             </div>
           </div>
 
-          {/* Mobile Header Buttons - Moved to the right */}
+          {/* Mobile Header Buttons - Improved layout */}
           <div className="lg:hidden">
             <div className="gi-header-buttons">
-              <div className="flex justify-end items-center space-x-4">
-                <Link
-                  href="/auth/login"
-                  className="gi-header-btn gi-header-user relative text-gray-700 hover:text-blue-600"
-                  title="Account"
-                >
-                  <div className="header-icon text-2xl">
-                    <FiUser />
-                  </div>
-                </Link>
-
-                {/* Wishlist button - Added back for mobile */}
-                <Link
-                  href="/wishlist"
-                  className="gi-header-btn gi-wish-toggle relative text-gray-700 hover:text-red-600"
-                  title="Wishlist"
-                >
-                  <div className="header-icon text-2xl relative">
-                    <FiHeart />
-                    {mounted &&
-                      wishlistItemCount > 0 && ( // Conditionally render count badge
-                        <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                          {wishlistItemCount} {/* Display dynamic count */}
+              <div className="flex justify-end items-center space-x-3">
+                {/* Authentication Widget - New improved design */}
+                <div className="relative">
+                  <button
+                    onClick={handleAuthDropdownToggle}
+                    className="gi-header-btn gi-auth-toggle relative text-gray-700 hover:text-blue-600 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200"
+                    title={isAuthenticated ? "Account" : "Login/Register"}
+                    aria-label={
+                      isAuthenticated ? "Account menu" : "Login or register"
+                    }
+                  >
+                    <div className="flex items-center space-x-1">
+                      <FiUser className="text-lg" />
+                      {mounted && isAuthenticated && user && (
+                        <span className="text-xs font-medium max-w-[60px] truncate">
+                          {user.firstName || "User"}
                         </span>
                       )}
+                      <FiChevronDown
+                        className={`text-xs transition-transform ${
+                          isAuthDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Authentication Dropdown - Fixed Logic */}
+                  {isAuthDropdownOpen && mounted && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
+                      {isAuthenticated && user?.role ? (
+                        // Authenticated menu - show only when fully authenticated
+                        <div className="py-2">
+                          <div className="px-4 py-2 border-b border-gray-100">
+                            <p className="text-sm font-medium text-gray-900">
+                              {user.firstName} {user.lastName}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                          <Link
+                            href={dashboardPath}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={closeAuthDropdown}
+                          >
+                            <FiSettings className="mr-2" />
+                            Dashboard
+                          </Link>
+                          <Link
+                            href="/checkout"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={closeAuthDropdown}
+                          >
+                            <FiShoppingBag className="mr-2" />
+                            Checkout
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                          >
+                            <FiLogOut className="mr-2" />
+                            Logout
+                          </button>
+                        </div>
+                      ) : (
+                        // Unauthenticated menu - show when not authenticated
+                        <div className="py-2">
+                          <Link
+                            href="/auth/login"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={closeAuthDropdown}
+                          >
+                            <FiLogIn className="mr-2" />
+                            Login
+                          </Link>
+                          <Link
+                            href="/auth/register"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={closeAuthDropdown}
+                          >
+                            <FiUserPlus className="mr-2" />
+                            Register
+                          </Link>
+                          <Link
+                            href="/checkout"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={closeAuthDropdown}
+                          >
+                            <FiShoppingBag className="mr-2" />
+                            Checkout
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Wishlist button */}
+                <Link
+                  href="/wishlist"
+                  className="gi-header-btn gi-wish-toggle relative text-gray-700 hover:text-red-600 bg-gray-50 rounded-lg p-2 border border-gray-200"
+                  title="Wishlist"
+                >
+                  <div className="header-icon text-lg relative">
+                    <FiHeart />
+                    {mounted && wishlistItemCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                        {wishlistItemCount}
+                      </span>
+                    )}
                   </div>
                 </Link>
 
+                {/* Cart button */}
                 <button
                   onClick={onCartToggle}
-                  className="gi-header-btn gi-cart-toggle relative text-gray-700 hover:text-green-600"
+                  className="gi-header-btn gi-cart-toggle relative text-gray-700 hover:text-green-600 bg-gray-50 rounded-lg p-2 border border-gray-200"
                   title="Cart"
                 >
-                  <div className="header-icon text-2xl relative">
+                  <div className="header-icon text-lg relative">
                     <FiShoppingBag />
                     {mounted && cartItemCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
@@ -450,6 +568,11 @@ const HeaderTop: React.FC<HeaderTopProps> = ({
           />
         </div>
       </div>
+
+      {/* Click outside handler for auth dropdown */}
+      {isAuthDropdownOpen && (
+        <div className="fixed inset-0 z-40" onClick={closeAuthDropdown} />
+      )}
     </div>
   );
 };

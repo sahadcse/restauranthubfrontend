@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { VendorSignupFormProps } from "../../../lib/interfaces/vendorForm";
 import { useVendorForm } from "../../../hooks/useVendorForm";
@@ -17,7 +17,24 @@ const STEP_LABELS = [
   "Documents & Agreement",
 ];
 
-export const VendorSignupForm: React.FC<VendorSignupFormProps> = ({
+// Loading component for the form
+function FormLoading() {
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-8">
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded mb-6"></div>
+        <div className="space-y-4">
+          <div className="h-12 bg-gray-200 rounded"></div>
+          <div className="h-12 bg-gray-200 rounded"></div>
+          <div className="h-12 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main form component that uses useSearchParams
+const VendorSignupFormContent: React.FC<VendorSignupFormProps> = ({
   onSubmit,
   isSubmitting = false,
   submitStatus = "idle",
@@ -296,5 +313,14 @@ export const VendorSignupForm: React.FC<VendorSignupFormProps> = ({
         </div>
       )}
     </>
+  );
+};
+
+// Exported component with Suspense wrapper
+export const VendorSignupForm: React.FC<VendorSignupFormProps> = (props) => {
+  return (
+    <Suspense fallback={<FormLoading />}>
+      <VendorSignupFormContent {...props} />
+    </Suspense>
   );
 };

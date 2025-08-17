@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "../../components/layout/public/Header";
 import Footer from "../../components/layout/public/Footer";
@@ -31,7 +31,31 @@ interface Statistic {
   label: string;
 }
 
-const VendorSignupPage: React.FC = () => {
+// Loading component for Suspense fallback
+function VendorSignupLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="bg-white rounded-lg shadow-sm p-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded mb-6 w-3/4"></div>
+            <div className="space-y-4">
+              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+// Main content component that uses useSearchParams
+function VendorSignupContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error"
@@ -201,6 +225,15 @@ const VendorSignupPage: React.FC = () => {
 
       <Footer />
     </div>
+  );
+}
+
+// Main page component with Suspense wrapper
+const VendorSignupPage: React.FC = () => {
+  return (
+    <Suspense fallback={<VendorSignupLoading />}>
+      <VendorSignupContent />
+    </Suspense>
   );
 };
 

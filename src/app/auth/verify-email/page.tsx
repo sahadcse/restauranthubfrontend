@@ -68,8 +68,15 @@ function VerifyEmailContent() {
               response.data
             );
 
-            // Set user in auth context
+            // Set user data in auth context and localStorage
             setUser(response.data);
+            localStorage.setItem("userData", JSON.stringify(response.data));
+
+            // Store the verification token as the authentication token for step 2
+            setToken(verificationToken);
+            localStorage.setItem("token", verificationToken);
+
+            console.log("Stored user data and verification token for step 2");
 
             // Auto-redirect restaurant owners to complete their profile
             if (response.data.role === UserRole.RESTAURANT_OWNER) {
@@ -77,9 +84,6 @@ function VerifyEmailContent() {
               setMessage(
                 "Email verified successfully! Redirecting you to complete your restaurant profile..."
               );
-
-              // Store user data for persistence across redirect
-              localStorage.setItem("userData", JSON.stringify(response.data));
 
               setTimeout(() => {
                 router.push("/vendor-signup?step=2");

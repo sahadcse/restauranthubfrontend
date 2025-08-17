@@ -65,6 +65,7 @@ export const restaurantApi = {
     profileData: VendorFormData,
     token: string
   ): Promise<Restaurant> => {
+    // Use the verification token directly for authentication
     const config = apiClient.createAuthenticatedConfig(token);
 
     // Transform VendorFormData to restaurant creation format
@@ -74,7 +75,18 @@ export const restaurantApi = {
       phone: profileData.phone,
       email: profileData.email,
       address: `${profileData.address}, ${profileData.city}, ${profileData.state} ${profileData.zipCode}`,
-      // Add other necessary transformations based on your Restaurant interface
+      cuisine: profileData.cuisine,
+      businessLicense: profileData.businessLicense,
+      taxId: profileData.taxId,
+      yearsInBusiness: profileData.yearsInBusiness,
+      currentLocations: profileData.currentLocations,
+      // Add file upload handling if needed
+      // documents: {
+      //   businessLicense: profileData.businessLicenseFile,
+      //   foodLicense: profileData.foodLicenseFile,
+      //   insurance: profileData.insuranceFile,
+      //   menu: profileData.menuFile
+      // }
     };
 
     return apiClient.post<Restaurant>("/restaurants", restaurantData, config);

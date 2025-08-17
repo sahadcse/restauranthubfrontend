@@ -61,7 +61,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const storedToken = localStorage.getItem("token");
       const storedUserData = localStorage.getItem("userData");
 
+      console.log("Auth initialization - stored token exists:", !!storedToken);
+      console.log(
+        "Auth initialization - stored user data exists:",
+        !!storedUserData
+      );
+
+      // Handle verification tokens (from email verification)
+      if (storedToken && storedToken.startsWith("eyJ")) {
+        // This is likely a verification token (JWT format)
+        if (storedUserData) {
+          try {
+            const parsedUserData = JSON.parse(storedUserData);
+            console.log(
+              "Auth initialized with verification token and user data:",
+              parsedUserData
+            );
+
+            setTokenState(storedToken);
+            setUserState(parsedUserData);
+            setLoading(false);
+            return;
+          } catch (error) {
+            console.error("Error parsing stored user data:", error);
+            localStorage.removeItem("userData");
+            localStorage.removeItem("token");
+          }
+        }
+      }
+
+      // If we have user data but no token (legacy case)
+      if (storedUserData && !storedToken) {
+        try {
+          const parsedUserData = JSON.parse(storedUserData);
+          console.log(
+            "Auth initialized with user data only (no token):",
+            parsedUserData
+          );
+
+          setUserState(parsedUserData);
+          setLoading(false);
+          return;
+        } catch (error) {
+          console.error("Error parsing stored user data:", error);
+          localStorage.removeItem("userData");
+        }
+      }
+
       if (!storedToken) {
+        console.log("No stored token found");
         setLoading(false);
         return;
       }
@@ -69,14 +117,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         if (storedUserData) {
           const parsedUserData = JSON.parse(storedUserData);
+          console.log("Auth initialized with stored user:", parsedUserData);
+
           setTokenState(storedToken);
           setUserState(parsedUserData);
-
-          // Log current user state for debugging
-          console.log("Auth initialized with user:", parsedUserData);
         } else {
-          // Fallback to token validation
           console.log("No stored user data, validating token...");
+
+          // Regular JWT token validation
           const validation = await authService.validateToken(storedToken);
           if (validation.isValid && validation.user) {
             setTokenState(storedToken);

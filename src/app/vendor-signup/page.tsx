@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useMemo, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "../../components/layout/public/Header";
 import Footer from "../../components/layout/public/Footer";
@@ -71,13 +71,48 @@ function VendorSignupContent() {
   console.log("VendorSignupContent - isLoading:", isLoading);
   console.log("VendorSignupContent - token exists:", !!token);
 
+  // Force re-check of localStorage if in step 2 and no user data
+  useEffect(() => {
+    if (isStep2 && !user && !isLoading) {
+      console.log("Step 2 detected but no user - checking localStorage");
+      const storedUserData = localStorage.getItem("userData");
+      const storedToken = localStorage.getItem("token");
+
+      console.log("Stored user data exists:", !!storedUserData);
+      console.log("Stored token exists:", !!storedToken);
+
+      if (storedUserData && storedToken) {
+        try {
+          const parsedUser = JSON.parse(storedUserData);
+          console.log("Found stored user data for step 2:", parsedUser);
+
+          // Force a page reload to reinitialize auth context
+          if (!user) {
+            console.log("Reloading page to reinitialize auth context");
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error("Error parsing stored user data:", error);
+          localStorage.removeItem("userData");
+          localStorage.removeItem("token");
+        }
+      }
+    }
+  }, [isStep2, user, isLoading]);
+
   // Check if user is authenticated restaurant owner for step 2
+  // Accept both regular auth tokens and verification tokens for step 2
   const isValidStep2User = isStep2
     ? user?.role === UserRole.RESTAURANT_OWNER &&
-      user?.accountStatus === "ACTIVE"
+      user?.accountStatus === "ACTIVE" &&
+      token !== null // Accept any token (including verification tokens)
     : true;
 
   console.log("VendorSignupContent - isValidStep2User:", isValidStep2User);
+  console.log(
+    "VendorSignupContent - token type:",
+    token?.substring(0, 20) + "..."
+  );
 
   const breadcrumbItems: BreadcrumbItem[] = useMemo(
     () => [
@@ -206,7 +241,7 @@ function VendorSignupContent() {
 
             {/* Right Column - Application Form */}
             <div className={isStep2 ? "lg:col-span-3" : "lg:col-span-2"}>
-              {isStep2 && (isLoading || !user) ? (
+              {isStep2 && isLoading ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Please Wait...
@@ -221,28 +256,15 @@ function VendorSignupContent() {
                   >
                     <span className="sr-only">Loading...</span>
                   </div>
-                  {/* Debug info in development */}
-                  {process.env.NODE_ENV === "development" && (
-                    <div className="mt-4 text-xs text-gray-500">
-                      <p>
-                        Debug: isLoading={isLoading.toString()}, user=
-                        {user ? "exists" : "null"}
-                      </p>
-                      <p>User role: {user?.role || "undefined"}</p>
-                      <p>
-                        Account status: {user?.accountStatus || "undefined"}
-                      </p>
-                    </div>
-                  )}
                 </div>
-              ) : isStep2 && !isValidStep2User ? (
+              ) : isStep2 && !user ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Access Denied
+                    Email Verification Required
                   </h2>
                   <p className="text-gray-600 mb-6">
-                    You need to be a verified restaurant owner to complete this
-                    step. Current status: {user?.accountStatus || "Unknown"}
+                    Please verify your email first to complete your restaurant
+                    registration.
                   </p>
                   <div className="space-y-3">
                     <button
@@ -260,18 +282,38 @@ function VendorSignupContent() {
                       Verify Email
                     </button>
                   </div>
-                  {/* Debug info in development */}
-                  {process.env.NODE_ENV === "development" && (
-                    <div className="mt-4 text-xs text-gray-500 border-t pt-4">
-                      <p>Debug Info:</p>
-                      <p>User role: {user?.role || "undefined"}</p>
-                      <p>
-                        Account status: {user?.accountStatus || "undefined"}
-                      </p>
-                      <p>Required: RESTAURANT_OWNER + ACTIVE</p>
-                      <p>isValidStep2User: {isValidStep2User.toString()}</p>
-                    </div>
-                  )}
+                </div>
+              ) : isStep2 && !isValidStep2User ? (
+                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Access Denied
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    You need to be a verified restaurant owner with an active
+                    account to complete this step.
+                    <br />
+                    Current status: {user?.accountStatus || "Unknown"}
+                    <br />
+                    Role: {user?.role || "Unknown"}
+                    <br />
+                    Token: {token ? "Present" : "Missing"}
+                  </p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => (window.location.href = "/vendor-signup")}
+                      className="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+                    >
+                      Start Restaurant Registration
+                    </button>
+                    <button
+                      onClick={() =>
+                        (window.location.href = "/auth/verify-email")
+                      }
+                      className="px-6 py-2 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors"
+                    >
+                      Verify Email
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <VendorSignupForm

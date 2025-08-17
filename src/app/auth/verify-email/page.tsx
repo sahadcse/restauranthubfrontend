@@ -68,9 +68,19 @@ function VerifyEmailContent() {
               response.data
             );
 
-            // Set user data in auth context and localStorage
-            setUser(response.data);
-            localStorage.setItem("userData", JSON.stringify(response.data));
+            // Ensure user data has required fields for restaurant owners
+            const userData = {
+              ...response.data,
+              role: response.data.role || "RESTAURANT_OWNER",
+              accountStatus: response.data.accountStatus || "ACTIVE",
+            };
+
+            console.log("Enhanced user data for step 2:", userData);
+
+            // IMPORTANT: Set user data FIRST, then token
+            // This prevents token decoding from overwriting complete user data
+            setUser(userData);
+            localStorage.setItem("userData", JSON.stringify(userData));
 
             // Store the verification token as the authentication token for step 2
             setToken(verificationToken);
@@ -79,7 +89,7 @@ function VerifyEmailContent() {
             console.log("Stored user data and verification token for step 2");
 
             // Auto-redirect restaurant owners to complete their profile
-            if (response.data.role === UserRole.RESTAURANT_OWNER) {
+            if (userData.role === UserRole.RESTAURANT_OWNER) {
               setIsRedirecting(true);
               setMessage(
                 "Email verified successfully! Redirecting you to complete your restaurant profile..."

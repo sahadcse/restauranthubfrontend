@@ -258,6 +258,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("Setting token:", newToken ? "***token***" : null);
 
     if (newToken && typeof newToken === "string") {
+      // If we already have complete user data, don't overwrite it with token decoding
+      const currentUserData = localStorage.getItem("userData");
+      if (currentUserData) {
+        try {
+          const existingUser = JSON.parse(currentUserData);
+          // Check if existing user data has role and accountStatus
+          if (existingUser.role && existingUser.accountStatus) {
+            console.log(
+              "Preserving existing complete user data:",
+              existingUser
+            );
+            setTokenState(newToken);
+            setUserState(existingUser);
+            localStorage.setItem("token", newToken);
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing existing user data:", error);
+        }
+      }
+
+      // Fallback to token decoding if no complete user data exists
       const userData = authService.decodeTokenToUser(newToken);
       if (userData) {
         console.log("Decoded user data from token:", userData);

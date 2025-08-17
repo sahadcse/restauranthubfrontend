@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { FormStepProps } from "../../../../lib/interfaces/vendorForm";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface PersonalInfoStepProps extends FormStepProps {
   isStep2?: boolean;
@@ -134,22 +133,22 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
               name="password"
               value={formData.password || ""}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 pr-10 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
+              className={`w-full px-3 py-2 pr-16 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
                 errors?.password ? "border-red-300" : "border-gray-300"
               }`}
               placeholder="Enter a strong password"
+              autoComplete="new-password"
+              data-testid="password-input"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 focus:outline-none"
+              className="password-toggle-btn"
               tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              data-testid="password-toggle"
             >
-              {showPassword ? (
-                <FiEyeOff className="h-4 w-4 text-gray-400" />
-              ) : (
-                <FiEye className="h-4 w-4 text-gray-400" />
-              )}
+              {showPassword ? "Hide" : "Show"}
             </button>
           </div>
           {errors?.password && (

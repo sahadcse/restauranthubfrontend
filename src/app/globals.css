@@ -18,3 +18,43 @@
     @apply bg-blue-500;
   }
 }
+
+/* Disable browser password visibility controls */
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="password"]::-webkit-textfield-decoration,
+input[type="password"]::-webkit-caps-lock-indicator,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-reveal {
+  display: none !important;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+/* Remove Edge password reveal button */
+input[type="password"]::-ms-reveal {
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Firefox password reveal prevention */
+input[type="password"] {
+  -moz-appearance: textfield;
+}
+
+/* Ensure password toggle button stays in position */
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: transparent;
+  border: none;
+  padding: 0 12px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}

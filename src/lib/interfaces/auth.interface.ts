@@ -35,9 +35,9 @@ export interface User {
 export interface UserRegistrationData {
   email: string;
   password: string;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
+  firstName: string; // Make required
+  lastName: string; // Make required
+  phoneNumber: string; // Make required for restaurant owners
   role?: UserRole;
   language?: string;
   timezone?: string;

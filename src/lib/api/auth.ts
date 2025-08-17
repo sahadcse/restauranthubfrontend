@@ -1,4 +1,4 @@
-import { UserRole } from '@/src/lib/interfaces/enums';
+import { UserRole } from "@/src/lib/interfaces/enums";
 import { apiClient } from "./client";
 import {
   UserRegistrationData,
@@ -7,7 +7,6 @@ import {
   ResendVerificationResponse,
   LoginResponse,
 } from "../interfaces";
-
 
 export const authApi = {
   // Register user (customer or restaurant owner)
@@ -24,9 +23,14 @@ export const authApi = {
   },
 
   async verifyEmail(token: string): Promise<EmailVerificationResponse> {
-    return apiClient.get<EmailVerificationResponse>(
-      `/users/verify-email/${token}`
-    );
+    try {
+      return await apiClient.get<EmailVerificationResponse>(
+        `/users/verify-email/${token}`
+      );
+    } catch (error) {
+      console.error("Email verification error:", error);
+      throw new Error("Email verification failed. Please try again.");
+    }
   },
 
   async resendVerificationEmail(

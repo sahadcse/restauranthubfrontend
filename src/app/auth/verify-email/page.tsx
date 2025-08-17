@@ -7,6 +7,8 @@ import Header from "../../../components/layout/public/Header";
 import Footer from "../../../components/layout/public/Footer";
 import Breadcrumb, { BreadcrumbItem } from "../../../components/ui/Breadcrumb";
 import { authApi } from "../../../lib/api/auth";
+import { useAuth } from "../../../contexts/authContext";
+import { UserRole } from "../../../lib/interfaces/enums";
 import { ApiError } from "../../../lib/errors/ApiError";
 import {
   FaEnvelope,
@@ -31,30 +33,56 @@ function VerifyEmailLoading() {
 // Main verification component that uses useSearchParams
 function VerifyEmailContent() {
   const [verificationStatus, setVerificationStatus] = useState<
-    "pending" | "success" | "error" | "resending"
+    "pending" | "verifying" | "success" | "error" | "resending"
   >("pending");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [resendError, setResendError] = useState("");
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { setUser, setToken } = useAuth();
 
   const token = searchParams.get("token");
   const emailParam = searchParams.get("email");
 
   const verifyEmailToken = useCallback(
     async (verificationToken: string) => {
+      setVerificationStatus("verifying");
+
       try {
         const response = await authApi.verifyEmail(verificationToken);
         setMessage(response.message || "Email verified successfully!");
         setVerificationStatus("success");
 
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          router.push("/auth/login?verified=true");
-        }, 3000);
+        // If user data is included in response, set it in context
+        if (response.data?.user) {
+          setUser(response.data.user);
+
+          // Auto-redirect restaurant owners to complete their profile
+          if (response.data.user.role === UserRole.RESTAURANT_OWNER) {
+            setIsRedirecting(true);
+            setMessage(
+              "Email verified successfully! Redirecting you to complete your restaurant profile..."
+            );
+
+            setTimeout(() => {
+              router.push("/vendor-signup?step=2");
+            }, 3000);
+          } else {
+            // For other users, redirect to login
+            setTimeout(() => {
+              router.push("/auth/login?verified=true");
+            }, 3000);
+          }
+        } else {
+          // If no user data, just redirect to login
+          setTimeout(() => {
+            router.push("/auth/login?verified=true");
+          }, 3000);
+        }
       } catch (error) {
         console.error("Email verification error:", error);
         let errorMessage = "Email verification failed. Please try again.";
@@ -67,7 +95,7 @@ function VerifyEmailContent() {
         setVerificationStatus("error");
       }
     },
-    [router]
+    [router, setUser, setToken]
   );
 
   useEffect(() => {
@@ -111,6 +139,19 @@ function VerifyEmailContent() {
 
   const renderContent = () => {
     switch (verificationStatus) {
+      case "verifying":
+        return (
+          <div className="text-center">
+            <FaSpinner className="w-16 h-16 text-teal-500 mx-auto mb-4 animate-spin" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Verifying Your Email
+            </h2>
+            <p className="text-gray-600">
+              Please wait while we verify your email address...
+            </p>
+          </div>
+        );
+
       case "success":
         return (
           <div className="text-center">
@@ -119,9 +160,30 @@ function VerifyEmailContent() {
               Email Verified Successfully!
             </h2>
             <p className="text-gray-600 mb-6">{message}</p>
-            <p className="text-sm text-gray-500">
-              Redirecting to login page in 3 seconds...
-            </p>
+
+            {isRedirecting ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-blue-700 text-sm">
+                  <FaSpinner className="inline w-4 h-4 animate-spin mr-2" />
+                  Redirecting you to complete your restaurant profile...
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Link
+                  href="/auth/login"
+                  className="block w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition-colors"
+                >
+                  Continue to Login
+                </Link>
+                <Link
+                  href="/vendor-signup"
+                  className="block w-full border border-teal-600 text-teal-600 py-2 px-4 rounded-md hover:bg-teal-50 transition-colors"
+                >
+                  Complete Restaurant Profile
+                </Link>
+              </div>
+            )}
           </div>
         );
 
@@ -140,14 +202,18 @@ function VerifyEmailContent() {
               >
                 Back to Login
               </Link>
-              {email && (
-                <button
-                  onClick={handleResendVerification}
-                  className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-                >
-                  Resend Verification Email
-                </button>
-              )}
+              <button
+                onClick={handleResendVerification}
+                className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Resend Verification Email
+              </button>
+              <Link
+                href="/vendor-signup"
+                className="block w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Back to Registration
+              </Link>
             </div>
           </div>
         );

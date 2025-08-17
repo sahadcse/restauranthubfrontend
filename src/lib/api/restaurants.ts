@@ -1,5 +1,6 @@
 import { apiClient } from "./client";
 import { Restaurant, MenuItem } from "../interfaces";
+import { VendorFormData } from "../interfaces/vendorForm";
 // import { demoCategories } from "../../data";
 
 // Restaurant CRUD operations
@@ -13,9 +14,9 @@ export const restaurantApi = {
   getById: async (id: number): Promise<Restaurant> => {
     return apiClient.get<Restaurant>(`/restaurants/${id}`);
   },
-  
+
   // Get restaurant by owner (authenticated)
-getByOwner: async (token: string): Promise<Restaurant> => {
+  getByOwner: async (token: string): Promise<Restaurant> => {
     const config = apiClient.createAuthenticatedConfig(token);
     return apiClient.get<Restaurant>("/restaurants/my-restaurant", config);
   },
@@ -57,6 +58,26 @@ getByOwner: async (token: string): Promise<Restaurant> => {
   delete: async (id: number, token: string): Promise<void> => {
     const config = apiClient.createAuthenticatedConfig(token);
     return apiClient.delete(`/restaurants/${id}`, config);
+  },
+
+  // Complete restaurant profile (step 2 of registration)
+  completeProfile: async (
+    profileData: VendorFormData,
+    token: string
+  ): Promise<Restaurant> => {
+    const config = apiClient.createAuthenticatedConfig(token);
+
+    // Transform VendorFormData to restaurant creation format
+    const restaurantData = {
+      name: profileData.restaurantName,
+      description: profileData.description,
+      phone: profileData.phone,
+      email: profileData.email,
+      address: `${profileData.address}, ${profileData.city}, ${profileData.state} ${profileData.zipCode}`,
+      // Add other necessary transformations based on your Restaurant interface
+    };
+
+    return apiClient.post<Restaurant>("/restaurants", restaurantData, config);
   },
 
   // Get categories

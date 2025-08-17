@@ -15,13 +15,13 @@ export interface User {
   privacyConsent: boolean;
   consentGivenAt?: string;
   lastLoginAt?: string;
-  language?: string; // ISO-2 preferred by backend (db.VarChar(2))
+  language?: string;
   timezone?: string;
   twoFactorEnabled: boolean;
-  twoFactorSecret?: string; // Added missing field from Prisma
+  twoFactorSecret?: string;
   failedLoginAttempts: number;
   isActive: boolean;
-  defaultCurrency?: string; // ISO-4217 (VarChar(3))
+  defaultCurrency?: string;
   provider?: string;
   providerId?: string;
   providerAccountId?: string;

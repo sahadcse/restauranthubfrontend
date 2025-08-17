@@ -66,7 +66,10 @@ function VendorSignupContent() {
   const isStep2 = searchParams.get("step") === "2";
 
   // Check if user is authenticated restaurant owner for step 2
-  const isValidStep2User = user?.role === UserRole.RESTAURANT_OWNER;
+  const isValidStep2User = isStep2
+    ? user?.role === UserRole.RESTAURANT_OWNER &&
+      user?.accountStatus === "ACTIVE"
+    : true;
 
   const breadcrumbItems: BreadcrumbItem[] = useMemo(
     () => [
@@ -195,21 +198,40 @@ function VendorSignupContent() {
 
             {/* Right Column - Application Form */}
             <div className={isStep2 ? "lg:col-span-3" : "lg:col-span-2"}>
-              {isStep2 && !isValidStep2User ? (
+              {isStep2 && !user ? (
+                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Please Wait...
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    Loading your account information...
+                  </p>
+                </div>
+              ) : isStep2 && !isValidStep2User ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Access Denied
                   </h2>
                   <p className="text-gray-600 mb-6">
                     You need to be a verified restaurant owner to complete this
-                    step.
+                    step. Current status: {user?.accountStatus || "Unknown"}
                   </p>
-                  <button
-                    onClick={() => (window.location.href = "/vendor-signup")}
-                    className="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
-                  >
-                    Start Restaurant Registration
-                  </button>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => (window.location.href = "/vendor-signup")}
+                      className="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+                    >
+                      Start Restaurant Registration
+                    </button>
+                    <button
+                      onClick={() =>
+                        (window.location.href = "/auth/verify-email")
+                      }
+                      className="px-6 py-2 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors"
+                    >
+                      Verify Email
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <VendorSignupForm

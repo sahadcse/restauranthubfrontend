@@ -27,6 +27,12 @@ class ApiClient {
     // Request interceptor
     this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
+        // Add auth token from localStorage if available
+        const token = localStorage.getItem("token");
+        if (token && !config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+
         // Add timestamp for cache busting if needed
         if (config.method === "get") {
           config.params = {

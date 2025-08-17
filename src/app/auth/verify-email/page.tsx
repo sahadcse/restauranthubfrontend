@@ -55,12 +55,20 @@ function VerifyEmailContent() {
       try {
         const response = await authApi.verifyEmail(verificationToken);
 
+        console.log("Email verification response From Verify-Email:", response);
+
         if (response.status === "success") {
           setVerificationStatus("success");
           setMessage(response.message || "Email verified successfully!");
 
           // Handle user data from response - it's directly in data field
           if (response.data) {
+            console.log(
+              "Email verification successful, user data:",
+              response.data
+            );
+
+            // Set user in auth context
             setUser(response.data);
 
             // Auto-redirect restaurant owners to complete their profile
@@ -69,6 +77,9 @@ function VerifyEmailContent() {
               setMessage(
                 "Email verified successfully! Redirecting you to complete your restaurant profile..."
               );
+
+              // Store user data for persistence across redirect
+              localStorage.setItem("userData", JSON.stringify(response.data));
 
               setTimeout(() => {
                 router.push("/vendor-signup?step=2");
@@ -80,6 +91,7 @@ function VerifyEmailContent() {
               }, 3000);
             }
           } else {
+            console.warn("No user data in verification response");
             // If no user data, just redirect to login
             setTimeout(() => {
               router.push("/auth/login?verified=true");

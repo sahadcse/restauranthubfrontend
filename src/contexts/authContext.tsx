@@ -71,15 +71,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const parsedUserData = JSON.parse(storedUserData);
           setTokenState(storedToken);
           setUserState(parsedUserData);
+
+          // Log current user state for debugging
+          console.log("Auth initialized with user:", parsedUserData);
         } else {
           // Fallback to token validation
+          console.log("No stored user data, validating token...");
           const validation = await authService.validateToken(storedToken);
           if (validation.isValid && validation.user) {
             setTokenState(storedToken);
             setUserState(validation.user);
             localStorage.setItem("userData", JSON.stringify(validation.user));
+            console.log("Token validated, user data:", validation.user);
           } else {
+            console.log("Token validation failed, clearing storage");
             localStorage.removeItem("token");
+            localStorage.removeItem("userData");
           }
         }
       } catch (error) {
@@ -200,9 +207,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const setToken = useCallback((newToken: string | null) => {
+    console.log("Setting token:", newToken ? "***token***" : null);
+
     if (newToken && typeof newToken === "string") {
       const userData = authService.decodeTokenToUser(newToken);
       if (userData) {
+        console.log("Decoded user data from token:", userData);
         setTokenState(newToken);
         setUserState(userData);
         localStorage.setItem("token", newToken);
@@ -215,6 +225,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUserState(null);
       }
     } else {
+      console.log("Clearing token and user data");
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
       setTokenState(null);
@@ -223,6 +234,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const setUser = useCallback((newUser: User | null) => {
+    console.log("Setting user:", newUser);
     setUserState(newUser);
     if (newUser) {
       localStorage.setItem("userData", JSON.stringify(newUser));

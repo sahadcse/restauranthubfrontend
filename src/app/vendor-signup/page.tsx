@@ -62,14 +62,22 @@ function VendorSignupContent() {
   >("idle");
 
   const searchParams = useSearchParams();
-  const { user, token } = useAuth();
+  const { user, token, isLoading } = useAuth();
   const isStep2 = searchParams.get("step") === "2";
+
+  // Add debugging logs
+  console.log("VendorSignupContent - isStep2:", isStep2);
+  console.log("VendorSignupContent - user:", user);
+  console.log("VendorSignupContent - isLoading:", isLoading);
+  console.log("VendorSignupContent - token exists:", !!token);
 
   // Check if user is authenticated restaurant owner for step 2
   const isValidStep2User = isStep2
     ? user?.role === UserRole.RESTAURANT_OWNER &&
       user?.accountStatus === "ACTIVE"
     : true;
+
+  console.log("VendorSignupContent - isValidStep2User:", isValidStep2User);
 
   const breadcrumbItems: BreadcrumbItem[] = useMemo(
     () => [
@@ -198,7 +206,7 @@ function VendorSignupContent() {
 
             {/* Right Column - Application Form */}
             <div className={isStep2 ? "lg:col-span-3" : "lg:col-span-2"}>
-              {isStep2 && !user ? (
+              {isStep2 && (isLoading || !user) ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Please Wait...
@@ -206,6 +214,26 @@ function VendorSignupContent() {
                   <p className="text-gray-600 mb-6">
                     Loading your account information...
                   </p>
+                  <div
+                    className="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent text-teal-600 rounded-full"
+                    role="status"
+                    aria-label="loading"
+                  >
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                  {/* Debug info in development */}
+                  {process.env.NODE_ENV === "development" && (
+                    <div className="mt-4 text-xs text-gray-500">
+                      <p>
+                        Debug: isLoading={isLoading.toString()}, user=
+                        {user ? "exists" : "null"}
+                      </p>
+                      <p>User role: {user?.role || "undefined"}</p>
+                      <p>
+                        Account status: {user?.accountStatus || "undefined"}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : isStep2 && !isValidStep2User ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
@@ -232,6 +260,18 @@ function VendorSignupContent() {
                       Verify Email
                     </button>
                   </div>
+                  {/* Debug info in development */}
+                  {process.env.NODE_ENV === "development" && (
+                    <div className="mt-4 text-xs text-gray-500 border-t pt-4">
+                      <p>Debug Info:</p>
+                      <p>User role: {user?.role || "undefined"}</p>
+                      <p>
+                        Account status: {user?.accountStatus || "undefined"}
+                      </p>
+                      <p>Required: RESTAURANT_OWNER + ACTIVE</p>
+                      <p>isValidStep2User: {isValidStep2User.toString()}</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <VendorSignupForm

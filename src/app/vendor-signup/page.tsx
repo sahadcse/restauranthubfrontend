@@ -112,10 +112,11 @@ function VendorSignupContent() {
   }
 
   // Check if user is authenticated restaurant owner for step 2
-  // Accept both regular auth tokens and verification tokens for step 2
+  // Accept PENDING_VERIFICATION status as well since verification might be in progress
   const isValidStep2User = isStep2
-    ? user?.role === UserRole.RESTAURANT_OWNER &&
-      user?.accountStatus === "ACTIVE" &&
+    ? (user?.role === UserRole.RESTAURANT_OWNER) &&
+      (user?.accountStatus === "ACTIVE" ||
+        user?.accountStatus === "PENDING_VERIFICATION") &&
       token !== null // Accept any token (including verification tokens)
     : true;
 
@@ -347,22 +348,61 @@ function VendorSignupContent() {
                     <br />
                     Token: {token ? "Present" : "Missing"}
                   </p>
+
+                  {/* Special handling for PENDING_VERIFICATION status */}
+                  {user?.accountStatus === "PENDING_VERIFICATION" && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                      <h3 className="text-sm font-medium text-yellow-800 mb-2">
+                        Account Verification Required
+                      </h3>
+                      <p className="text-sm text-yellow-700">
+                        Your account is still pending verification. Please check
+                        your email and click the verification link to activate
+                        your account.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="space-y-3">
-                    <button
-                      onClick={() => (window.location.href = "/vendor-signup")}
-                      className="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
-                    >
-                      Start Restaurant Registration
-                    </button>
-                    <button
-                      onClick={() =>
-                        (window.location.href = "/auth/verify-email")
-                      }
-                      className="px-6 py-2 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors"
-                    >
-                      Verify Email
-                    </button>
+                    {user?.accountStatus === "PENDING_VERIFICATION" ? (
+                      <>
+                        <button
+                          onClick={() =>
+                            (window.location.href = "/auth/verify-email")
+                          }
+                          className="px-6 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+                        >
+                          Check Email Verification
+                        </button>
+                        <button
+                          onClick={() => window.location.reload()}
+                          className="px-6 py-2 border border-yellow-600 text-yellow-600 rounded-md hover:bg-yellow-50 transition-colors"
+                        >
+                          Refresh Page
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() =>
+                            (window.location.href = "/vendor-signup")
+                          }
+                          className="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+                        >
+                          Start Restaurant Registration
+                        </button>
+                        <button
+                          onClick={() =>
+                            (window.location.href = "/auth/verify-email")
+                          }
+                          className="px-6 py-2 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors"
+                        >
+                          Verify Email
+                        </button>
+                      </>
+                    )}
                   </div>
+
                   {/* Debug info in development */}
                   {process.env.NODE_ENV === "development" && (
                     <div className="mt-4 text-xs text-gray-500 border-t pt-4">
@@ -371,7 +411,10 @@ function VendorSignupContent() {
                       <p>
                         Account status: {user?.accountStatus || "undefined"}
                       </p>
-                      <p>Required: RESTAURANT_OWNER + ACTIVE</p>
+                      <p>
+                        Required: RESTAURANT_OWNER + (ACTIVE or
+                        PENDING_VERIFICATION)
+                      </p>
                       <p>isValidStep2User: {isValidStep2User.toString()}</p>
                       <p>
                         LocalStorage user:{" "}

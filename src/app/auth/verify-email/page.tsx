@@ -69,10 +69,11 @@ function VerifyEmailContent() {
             );
 
             // Ensure user data has required fields for restaurant owners
+            // The server should return ACTIVE status after successful verification
             const userData = {
               ...response.data,
-              role: response.data.role || "RESTAURANT_OWNER",
-              accountStatus: response.data.accountStatus || "ACTIVE",
+              role: response.data.role,
+              accountStatus: response.data.accountStatus,
             };
 
             console.log("Enhanced user data for step 2:", userData);
@@ -95,9 +96,10 @@ function VerifyEmailContent() {
                 "Email verified successfully! Redirecting you to complete your restaurant profile..."
               );
 
+              // Wait 5 seconds to show the success state and ensure data is persisted
               setTimeout(() => {
                 router.push("/vendor-signup?step=2");
-              }, 3000);
+              }, 5000);
             } else {
               // For other users, redirect to login
               setTimeout(() => {
@@ -195,26 +197,48 @@ function VerifyEmailContent() {
             </h2>
             <p className="text-gray-600 mb-6">{message}</p>
 
+            {/* Show verification details before redirecting */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <h3 className="text-sm font-medium text-green-800 mb-2">
+                Account Details
+              </h3>
+              <div className="text-sm text-green-700 space-y-1">
+                <p>✓ Email verified successfully</p>
+                <p>✓ Account status: ACTIVE</p>
+                <p>✓ Role: Restaurant Owner</p>
+                <p>✓ Ready to complete restaurant profile</p>
+              </div>
+            </div>
+
             {isRedirecting ? (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-blue-700 text-sm">
                   <FaSpinner className="inline w-4 h-4 animate-spin mr-2" />
                   Redirecting you to complete your restaurant profile...
                 </p>
+                <p className="text-xs text-blue-600 mt-2">
+                  You will be redirected in a few seconds. If not, click the button below.
+                </p>
+                <button
+                  onClick={() => router.push("/vendor-signup?step=2")}
+                  className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Continue to Restaurant Profile
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
                 <Link
-                  href="/auth/login"
+                  href="/vendor-signup?step=2"
                   className="block w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition-colors"
                 >
-                  Continue to Login
+                  Complete Restaurant Profile
                 </Link>
                 <Link
-                  href="/vendor-signup"
+                  href="/auth/login"
                   className="block w-full border border-teal-600 text-teal-600 py-2 px-4 rounded-md hover:bg-teal-50 transition-colors"
                 >
-                  Complete Restaurant Profile
+                  Continue to Login
                 </Link>
               </div>
             )}

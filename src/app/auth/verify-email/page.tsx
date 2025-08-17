@@ -54,45 +54,53 @@ function VerifyEmailContent() {
 
       try {
         const response = await authApi.verifyEmail(verificationToken);
-        setMessage(response.message || "Email verified successfully!");
-        setVerificationStatus("success");
 
-        // If user data is included in response, set it in context
-        if (response.data?.user) {
-          setUser(response.data.user);
+        if (response.status === "success") {
+          setVerificationStatus("success");
+          setMessage(response.message || "Email verified successfully!");
 
-          // Auto-redirect restaurant owners to complete their profile
-          if (response.data.user.role === UserRole.RESTAURANT_OWNER) {
-            setIsRedirecting(true);
-            setMessage(
-              "Email verified successfully! Redirecting you to complete your restaurant profile..."
-            );
+          // Handle user data from response - it's directly in data field
+          if (response.data) {
+            setUser(response.data);
 
-            setTimeout(() => {
-              router.push("/vendor-signup?step=2");
-            }, 3000);
+            // Auto-redirect restaurant owners to complete their profile
+            if (response.data.role === UserRole.RESTAURANT_OWNER) {
+              setIsRedirecting(true);
+              setMessage(
+                "Email verified successfully! Redirecting you to complete your restaurant profile..."
+              );
+
+              setTimeout(() => {
+                router.push("/vendor-signup?step=2");
+              }, 3000);
+            } else {
+              // For other users, redirect to login
+              setTimeout(() => {
+                router.push("/auth/login?verified=true");
+              }, 3000);
+            }
           } else {
-            // For other users, redirect to login
+            // If no user data, just redirect to login
             setTimeout(() => {
               router.push("/auth/login?verified=true");
             }, 3000);
           }
         } else {
-          // If no user data, just redirect to login
-          setTimeout(() => {
-            router.push("/auth/login?verified=true");
-          }, 3000);
+          setVerificationStatus("error");
+          setMessage(response.message || "Email verification failed");
         }
       } catch (error) {
         console.error("Email verification error:", error);
-        let errorMessage = "Email verification failed. Please try again.";
+        setVerificationStatus("error");
 
+        let errorMessage = "Email verification failed. Please try again.";
         if (error instanceof ApiError) {
+          errorMessage = error.message;
+        } else if (error instanceof Error) {
           errorMessage = error.message;
         }
 
         setMessage(errorMessage);
-        setVerificationStatus("error");
       }
     },
     [router, setUser, setToken]

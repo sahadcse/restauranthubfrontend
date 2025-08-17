@@ -278,7 +278,20 @@ Endpoints that return a list of items (e.g., `GET /restaurants`) support paginat
 - **Access**: Public
 - **Success Response (`200 OK`)**:
   ```json
-  { "message": "Email verified successfully." }
+  {
+    "status": "success",
+    "message": "Email verified successfully. You can now login to your account.",
+    "data": {
+      "id": "user-uuid",
+      "email": "user@example.com",
+      "role": "RESTAURANT_OWNER",
+      "firstName": "John",
+      "lastName": "Doe",
+      "accountStatus": "ACTIVE",
+      "privacyConsent": true,
+      "createdAt": "2023-10-27T10:00:00Z"
+    }
+  }
   ```
 
 #### **POST** `/users/resend-verification`

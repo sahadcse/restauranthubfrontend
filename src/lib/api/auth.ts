@@ -24,9 +24,13 @@ export const authApi = {
 
   async verifyEmail(token: string): Promise<EmailVerificationResponse> {
     try {
-      return await apiClient.get<EmailVerificationResponse>(
+      const response = await apiClient.get<EmailVerificationResponse>(
         `/users/verify-email/${token}`
       );
+
+      // The backend returns the format:
+      // { status: "success", message: "...", data: user }
+      return response;
     } catch (error) {
       console.error("Email verification error:", error);
       throw new Error("Email verification failed. Please try again.");

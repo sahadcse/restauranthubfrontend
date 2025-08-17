@@ -117,11 +117,9 @@ export interface EmailVerification {
 }
 
 export interface EmailVerificationResponse {
-  success: boolean;
+  status: "success" | "error";
   message: string;
-  data?: {
-    user?: User;
-  };
+  data?: User; // Direct user object, not nested
 }
 
 export interface ResendVerificationResponse {
@@ -132,5 +130,7 @@ export interface ResendVerificationResponse {
 // export type RegistrationRole =
 //   | "customer"
 //   | "restaurant-owner"
+//   | "restaurant-staff"
+//   | "admin";
 //   | "restaurant-staff"
 //   | "admin";

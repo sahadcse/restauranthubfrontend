@@ -31,16 +31,17 @@ export const authApi = {
       console.log("Raw verification response:", response);
 
       // The backend returns the format:
-      // { status: "success", message: "...", data: user }
+      // { status: "success", message: "...", data: user, token: authToken }
 
-      // If the backend also returns authentication tokens, handle them here
       if (response.status === "success" && response.data) {
         // Store user data immediately for persistence
         localStorage.setItem("userData", JSON.stringify(response.data));
 
-        // If backend returns tokens in the response, store them
-        // This depends on your backend implementation
-        // Example: if (response.tokens) { ... }
+        // Store auth token if provided for auto-login
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+          console.log("Auto-login token stored from verification response");
+        }
       }
 
       return response;

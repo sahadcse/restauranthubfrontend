@@ -112,19 +112,15 @@ function VendorSignupContent() {
   }
 
   // Check if user is authenticated restaurant owner for step 2
-  // Accept PENDING_VERIFICATION status as well since verification might be in progress
+  // Now checking both role and account status from user data
   const isValidStep2User = isStep2
-    ? (user?.role === UserRole.RESTAURANT_OWNER) &&
-      (user?.accountStatus === "ACTIVE" ||
-        user?.accountStatus === "PENDING_VERIFICATION") &&
-      token !== null // Accept any token (including verification tokens)
+    ? user?.role === UserRole.RESTAURANT_OWNER &&
+      user?.accountStatus === "ACTIVE" && // Only allow ACTIVE accounts for step 2
+      token !== null // Must have authentication token
     : true;
 
   console.log("VendorSignupContent - isValidStep2User:", isValidStep2User);
-  console.log(
-    "VendorSignupContent - token type:",
-    token?.substring(0, 20) + "..."
-  );
+  console.log("VendorSignupContent - account status:", user?.accountStatus);
 
   const breadcrumbItems: BreadcrumbItem[] = useMemo(
     () => [
@@ -349,16 +345,40 @@ function VendorSignupContent() {
                     Token: {token ? "Present" : "Missing"}
                   </p>
 
-                  {/* Special handling for PENDING_VERIFICATION status */}
+                  {/* Special handling for different account statuses */}
                   {user?.accountStatus === "PENDING_VERIFICATION" && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
                       <h3 className="text-sm font-medium text-yellow-800 mb-2">
-                        Account Verification Required
+                        Email Verification Required
                       </h3>
                       <p className="text-sm text-yellow-700">
-                        Your account is still pending verification. Please check
-                        your email and click the verification link to activate
-                        your account.
+                        Your account is still pending email verification. Please
+                        check your email and click the verification link to
+                        activate your account.
+                      </p>
+                    </div>
+                  )}
+
+                  {user?.accountStatus === "INACTIVE" && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                      <h3 className="text-sm font-medium text-blue-800 mb-2">
+                        Account Under Review
+                      </h3>
+                      <p className="text-sm text-blue-700">
+                        Your account has been verified but is currently under
+                        admin review. You will be notified once approved.
+                      </p>
+                    </div>
+                  )}
+
+                  {user?.accountStatus === "SUSPENDED" && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                      <h3 className="text-sm font-medium text-red-800 mb-2">
+                        Account Suspended
+                      </h3>
+                      <p className="text-sm text-red-700">
+                        Your account has been suspended. Please contact support
+                        for assistance.
                       </p>
                     </div>
                   )}
@@ -381,6 +401,13 @@ function VendorSignupContent() {
                           Refresh Page
                         </button>
                       </>
+                    ) : user?.accountStatus === "SUSPENDED" ? (
+                      <button
+                        onClick={() => window.location.reload()}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      >
+                        Check Status
+                      </button>
                     ) : (
                       <>
                         <button
@@ -411,10 +438,7 @@ function VendorSignupContent() {
                       <p>
                         Account status: {user?.accountStatus || "undefined"}
                       </p>
-                      <p>
-                        Required: RESTAURANT_OWNER + (ACTIVE or
-                        PENDING_VERIFICATION)
-                      </p>
+                      <p>Required: RESTAURANT_OWNER + ACTIVE</p>
                       <p>isValidStep2User: {isValidStep2User.toString()}</p>
                       <p>
                         LocalStorage user:{" "}

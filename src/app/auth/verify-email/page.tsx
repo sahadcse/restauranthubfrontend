@@ -68,40 +68,54 @@ function VerifyEmailContent() {
               response.data
             );
 
-            // Ensure user data has required fields for restaurant owners
-            // The server should return ACTIVE status after successful verification
-            const userData = {
-              ...response.data,
-              role: response.data.role,
-              accountStatus: response.data.accountStatus,
-            };
+            // Use the token from the API response for auto-login
+            const userData = response.data;
+            const authToken = response.token; // Use token from API response
 
-            console.log("Enhanced user data for step 2:", userData);
+            console.log(
+              "Authentication token from verification:",
+              authToken ? "***token***" : "null"
+            );
 
-            // IMPORTANT: Set user data FIRST, then token
-            // This prevents token decoding from overwriting complete user data
+            // Set user data in auth context and localStorage FIRST
             setUser(userData);
             localStorage.setItem("userData", JSON.stringify(userData));
 
-            // Store the verification token as the authentication token for step 2
-            setToken(verificationToken);
-            localStorage.setItem("token", verificationToken);
+            // Store the authentication token from API response
+            if (authToken) {
+              setToken(authToken);
+              localStorage.setItem("token", authToken);
+              console.log("Stored authentication token for auto-login");
+            }
 
-            console.log("Stored user data and verification token for step 2");
+            // Check account status and role for redirect logic
+            const isRestaurantOwner =
+              userData.role === UserRole.RESTAURANT_OWNER;
+            const isAccountActive = userData.accountStatus === "ACTIVE";
+
+            console.log("Verification redirect logic:");
+            console.log("- Is restaurant owner:", isRestaurantOwner);
+            console.log("- Is account active:", isAccountActive);
+            console.log("- Account status:", userData.accountStatus);
 
             // Auto-redirect restaurant owners to complete their profile
-            if (userData.role === UserRole.RESTAURANT_OWNER) {
+            if (isRestaurantOwner && isAccountActive) {
               setIsRedirecting(true);
               setMessage(
-                "Email verified successfully! Redirecting you to complete your restaurant profile..."
+                "Email verified successfully! Your account is now active. Redirecting you to complete your restaurant profile..."
               );
 
               // Wait 5 seconds to show the success state and ensure data is persisted
               setTimeout(() => {
                 router.push("/vendor-signup?step=2");
               }, 5000);
+            } else if (isRestaurantOwner && !isAccountActive) {
+              // Restaurant owner but account not active yet
+              setMessage(
+                "Email verified successfully! Your account is being processed. Please wait for admin approval."
+              );
             } else {
-              // For other users, redirect to login
+              // For other users (customers), redirect to login or dashboard
               setTimeout(() => {
                 router.push("/auth/login?verified=true");
               }, 3000);
@@ -204,6 +218,7 @@ function VerifyEmailContent() {
               </h3>
               <div className="text-sm text-green-700 space-y-1">
                 <p>✓ Email verified successfully</p>
+                <p>✓ Auto-login successful</p>
                 <p>✓ Account status: ACTIVE</p>
                 <p>✓ Role: Restaurant Owner</p>
                 <p>✓ Ready to complete restaurant profile</p>
@@ -217,7 +232,8 @@ function VerifyEmailContent() {
                   Redirecting you to complete your restaurant profile...
                 </p>
                 <p className="text-xs text-blue-600 mt-2">
-                  You will be redirected in a few seconds. If not, click the button below.
+                  You will be redirected in a few seconds. If not, click the
+                  button below.
                 </p>
                 <button
                   onClick={() => router.push("/vendor-signup?step=2")}

@@ -120,6 +120,7 @@ export interface EmailVerificationResponse {
   status: "success" | "error";
   message: string;
   data?: User; // Direct user object, not nested
+  token?: string; // Authentication token for auto-login
 }
 
 export interface ResendVerificationResponse {

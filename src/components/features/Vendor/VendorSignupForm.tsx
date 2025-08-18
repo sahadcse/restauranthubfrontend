@@ -52,6 +52,7 @@ const VendorSignupFormContent: React.FC<VendorSignupFormProps> = ({
     errors,
     setErrors,
     currentStep,
+    setCurrentStep, // Add this to get access to setCurrentStep
     handleInputChange,
     handleFileChange,
     nextStep,
@@ -61,9 +62,14 @@ const VendorSignupFormContent: React.FC<VendorSignupFormProps> = ({
     isStepValid,
   } = useVendorForm();
 
-  // Auto-populate form data from user if in step 2
+  // Auto-populate form data from user if in step 2 and set current step
   useEffect(() => {
     if (isStep2 && user) {
+      console.log(
+        "Step 2 detected, auto-populating form and advancing to step 2"
+      );
+
+      // Auto-populate form data
       setFormData((prev) => ({
         ...prev,
         firstName: user.firstName || "",
@@ -71,8 +77,24 @@ const VendorSignupFormContent: React.FC<VendorSignupFormProps> = ({
         email: user.email || "",
         phone: user.phoneNumber || "",
       }));
+
+      // Auto-advance to step 2 (Restaurant Details)
+      setCurrentStep(2);
     }
-  }, [isStep2, user, setFormData]);
+  }, [isStep2, user, setFormData, setCurrentStep]);
+
+  // Debug logging for step management
+  useEffect(() => {
+    console.log("VendorSignupForm Debug:");
+    console.log("- isStep2 (from URL):", isStep2);
+    console.log("- currentStep (form state):", currentStep);
+    console.log("- user exists:", !!user);
+    console.log("- form data:", {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+    });
+  }, [isStep2, currentStep, user, formData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

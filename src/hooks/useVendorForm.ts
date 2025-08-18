@@ -192,6 +192,7 @@ export const useVendorForm = () => {
     errors,
     setErrors,
     currentStep,
+    setCurrentStep, // Export setCurrentStep so parent components can control it
     handleInputChange,
     handleFileChange,
     nextStep,

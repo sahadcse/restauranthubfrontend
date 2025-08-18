@@ -13,6 +13,40 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
+  // Show a notice for step 2 users that personal info is pre-filled
+  if (isStep2) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-lg font-medium text-blue-800 mb-2">
+            Personal Information Confirmed
+          </h3>
+          <p className="text-sm text-blue-700">
+            Your personal information has been verified and pre-filled from your
+            account. You can proceed to the next step to enter your restaurant
+            details.
+          </p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <span className="text-sm font-medium text-blue-900">Name:</span>
+              <p className="text-sm text-blue-700">
+                {formData.firstName} {formData.lastName}
+              </p>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-blue-900">Email:</span>
+              <p className="text-sm text-blue-700">{formData.email}</p>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-blue-900">Phone:</span>
+              <p className="text-sm text-blue-700">{formData.phone}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-900 mb-4">
